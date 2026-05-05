@@ -1,11 +1,11 @@
 export const allDestinations = [
-  { id: 1, name: "Hạ Long Bay", country: "Việt Nam", region: "bac", price: "2,490,000", nights: 3, rating: 4.9, reviews: 1284, tag: "Bestseller", img: "https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=600&q=80" },
+  { id: 1, name: "Hạ Long Bay", country: "Việt Nam", region: "bac", price: "2,490,000", nights: 3, rating: 4.9, reviews: 1284, tag: "Bestseller", img: "https://tse1.mm.bing.net/th/id/OIP.RABPkjgoEM87UPjuWWfxSQHaE7?rs=1&pid=ImgDetMain&o=7&rm=3" },
   { id: 2, name: "Hội An Ancient", country: "Việt Nam", region: "trung", price: "1,890,000", nights: 2, rating: 4.8, reviews: 942, tag: "Hot", img: "https://images.unsplash.com/photo-1555400038-63f5ba517a47?w=600&q=80" },
-  { id: 3, name: "Sapa Highland", country: "Việt Nam", region: "bac", price: "2,190,000", nights: 3, rating: 4.7, reviews: 756, tag: "New", img: "https://images.unsplash.com/photo-1572791870574-8a7b7b3d2dd3?w=600&q=80" },
-  { id: 4, name: "Phú Quốc Island", country: "Việt Nam", region: "nam", price: "3,290,000", nights: 4, rating: 4.9, reviews: 2103, tag: "Luxury", img: "https://images.unsplash.com/photo-1598714805247-5dd49bcd5be5?w=600&q=80" },
+  { id: 3, name: "Sapa Highland", country: "Việt Nam", region: "bac", price: "2,190,000", nights: 3, rating: 4.7, reviews: 756, tag: "New", img: "https://res.klook.com/image/upload/fl_lossy.progressive,q_60/Mobile/City/nab4excv9bkndhqnsyvl.jpg" },
+  { id: 4, name: "Phú Quốc Island", country: "Việt Nam", region: "nam", price: "3,290,000", nights: 4, rating: 4.9, reviews: 2103, tag: "Luxury", img: "https://vietnam.travel/sites/default/files/2022-10/shutterstock_1660147075.jpg" },
   { id: 5, name: "Đà Nẵng Beach", country: "Việt Nam", region: "trung", price: "1,690,000", nights: 2, rating: 4.6, reviews: 889, tag: "Hot", img: "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=600&q=80" },
   { id: 6, name: "Cần Thơ Mekong", country: "Việt Nam", region: "nam", price: "1,490,000", nights: 2, rating: 4.5, reviews: 631, tag: "New", img: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=80" },
-  { id: 7, name: "Ninh Bình", country: "Việt Nam", region: "bac", price: "1,290,000", nights: 2, rating: 4.7, reviews: 774, tag: "Bestseller", img: "https://images.unsplash.com/photo-1564596823821-79b7a0314a52?w=600&q=80" },
+  { id: 7, name: "Ninh Bình", country: "Việt Nam", region: "bac", price: "1,290,000", nights: 2, rating: 4.7, reviews: 774, tag: "Bestseller", img: "https://tse2.mm.bing.net/th/id/OIP.Wovd7xc9rkemWkDRiGXfngHaF7?rs=1&pid=ImgDetMain&o=7&rm=3" },
   { id: 8, name: "Bali Adventure", country: "Indonesia", region: "quocte", price: "8,990,000", nights: 5, rating: 4.9, reviews: 3241, tag: "Luxury", img: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=600&q=80" },
 ];
 
@@ -146,7 +146,7 @@ export const blogPosts = [
     category: "Trải Nghiệm",
     date: "01 Thg 5, 2024",
     readTime: "4 phút đọc",
-    coverImage: "https://images.unsplash.com/photo-1572791870574-8a7b7b3d2dd3?w=1200&q=80",
+    coverImage: "https://res.klook.com/image/upload/fl_lossy.progressive,q_60/Mobile/City/nab4excv9bkndhqnsyvl.jpg",
     author: {
       name: "Minh Anh",
       avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&q=80"
@@ -160,7 +160,7 @@ export const blogPosts = [
     category: "Kinh Nghiệm",
     date: "24 Thg 4, 2024",
     readTime: "10 phút đọc",
-    coverImage: "https://images.unsplash.com/photo-1598714805247-5dd49bcd5be5?w=1200&q=80",
+    coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Bai-sao-phu-quoc-tuonglamphotos.jpg/960px-Bai-sao-phu-quoc-tuonglamphotos.jpg",
     author: {
       name: "Lê Kiên",
       avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&q=80"

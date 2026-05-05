@@ -5,10 +5,10 @@ import { stats } from "../data/mockData";
 import { Map, MapPin, Calendar, Clock, Users, Compass, Smile, Home, Star } from "lucide-react";
 
 const bgImages = [
-  "https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=1920&q=80",
-  "https://images.unsplash.com/photo-1572791870574-8a7b7b3d2dd3?w=1920&q=80",
-  "https://images.unsplash.com/photo-1555400038-63f5ba517a47?w=1920&q=80",
-  "https://images.unsplash.com/photo-1598714805247-5dd49bcd5be5?w=1920&q=80",
+  "https://a.cdn-hotels.com/gdcs/production77/d1902/21336448-81d8-4643-a1b9-1545d08172de.jpg",
+  "https://khoinguonsangtao.vn/wp-content/uploads/2022/11/hinh-anh-sapa.jpg",
+  "https://www.agoda.com/wp-content/uploads/2024/01/Featured-image-Hoi-An-ancient-town.jpg",
+  "https://static.vinwonders.com/production/kinh-nghiem-du-lich-phu-quoc-banner.jpg",
 ];
 const textOptions = ["Hạ Long", "Sapa", "Hội An", "Phú Quốc"];
 const suggestions = [
@@ -52,15 +52,15 @@ export default function HeroSection() {
       {/* BACKGROUND SLIDESHOW */}
       <div style={{ position: "absolute", inset: 0, zIndex: -2 }}>
         {bgImages.map((img, i) => (
-          <img 
-            key={i} 
-            src={img} 
-            alt="Background" 
-            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: bgIndex === i ? 1 : 0, transition: "opacity 1.5s ease-in-out", transform: bgIndex === i ? "scale(1.05)" : "scale(1)", transitionProperty: "opacity, transform", transitionDuration: "1.5s, 6s" }} 
+          <img
+            key={i}
+            src={img}
+            alt="Background"
+            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: bgIndex === i ? 1 : 0, transition: "opacity 1.5s ease-in-out", transform: bgIndex === i ? "scale(1.05)" : "scale(1)", transitionProperty: "opacity, transform", transitionDuration: "1.5s, 6s" }}
           />
         ))}
       </div>
-      
+
       {/* DARK OVERLAY - To keep white text readable on bright images */}
       <div style={{ position: "absolute", inset: 0, zIndex: -1, background: "linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.5) 60%, #f8fafc 100%)" }} />
 
@@ -94,28 +94,28 @@ export default function HeroSection() {
 
         <div style={{ ...glassCard, padding: "8px", boxShadow: searchFocus ? "0 20px 60px rgba(0,0,0,0.1)" : "0 10px 40px rgba(0,0,0,0.08)", transition: "box-shadow 0.3s ease" }}>
           <div className="search-grid" style={{ display: "grid", gridTemplateColumns: activeTab === "tour" ? "1fr 1fr 1fr auto" : "1fr 1fr 1fr auto", gap: "6px" }}>
-            
+
             <div style={{ position: "relative", background: "#f1f5f9", borderRadius: "14px", padding: "14px 18px", border: "1px solid rgba(0,0,0,0.02)" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "10px", color: "#0d9488", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "6px" }}>
                 <MapPin size={12} /> Điểm đến
               </div>
-              <input 
-                placeholder={`VD: ${textOptions[(bgIndex + 1) % textOptions.length]}...`} 
+              <input
+                placeholder={`VD: ${textOptions[(bgIndex + 1) % textOptions.length]}...`}
                 value={destQuery}
                 onChange={(e) => setDestQuery(e.target.value)}
-                onFocus={() => setSearchFocus(true)} 
-                onBlur={() => setSearchFocus(false)} 
-                style={{ fontSize: "15px", fontWeight: 600, color: "#0f172a" }} 
+                onFocus={() => setSearchFocus(true)}
+                onBlur={() => setSearchFocus(false)}
+                style={{ fontSize: "15px", fontWeight: 600, color: "#0f172a" }}
               />
-              
+
               {searchFocus && (
                 <div style={{ position: "absolute", top: "100%", left: 0, right: 0, marginTop: "12px", background: "#ffffff", borderRadius: "14px", border: "1px solid rgba(0,0,0,0.05)", padding: "12px", zIndex: 20, textAlign: "left", boxShadow: "0 10px 40px rgba(0,0,0,0.1)", animation: "slideDown 0.2s ease" }}>
                   <div style={{ fontSize: "11px", color: "#64748b", marginBottom: "8px", fontWeight: 700, paddingLeft: "8px" }}>GỢI Ý PHỔ BIẾN</div>
                   <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                     {suggestions.map((item, idx) => (
-                      <div 
-                        key={idx} 
-                        style={{ padding: "10px 12px", borderRadius: "10px", cursor: "pointer", fontSize: "14px", fontWeight: 600, color: "#0f172a", display: "flex", alignItems: "center", gap: "10px" }} 
+                      <div
+                        key={idx}
+                        style={{ padding: "10px 12px", borderRadius: "10px", cursor: "pointer", fontSize: "14px", fontWeight: 600, color: "#0f172a", display: "flex", alignItems: "center", gap: "10px" }}
                         onMouseEnter={(e) => e.target.style.background = "#f1f5f9"}
                         onMouseLeave={(e) => e.target.style.background = "transparent"}
                         onMouseDown={(e) => { e.preventDefault(); setDestQuery(item.text); setSearchFocus(false); }}
@@ -134,7 +134,7 @@ export default function HeroSection() {
               </div>
               <input type="date" style={{ fontSize: "15px", fontWeight: 600, color: "#0f172a" }} />
             </div>
-            
+
             {activeTab === "tour" ? (
               <div style={{ background: "#f1f5f9", borderRadius: "14px", padding: "14px 18px", border: "1px solid rgba(0,0,0,0.02)" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "10px", color: "#0d9488", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "6px" }}>
