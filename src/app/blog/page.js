@@ -93,11 +93,11 @@ export default function BlogPage() {
         {/* POSTS GRID */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(350px, 1fr))", gap: "40px" }}>
           {filteredPosts.map((post) => (
-            <Link key={post.id} href={`/blog/${post.id}`} style={{ textDecoration: "none", display: "flex", flexDirection: "column" }} className="glass-hover">
-              <div style={{ borderRadius: "24px", overflow: "hidden", height: "240px", marginBottom: "24px" }}>
+            <Link key={post.id} href={`/blog/${post.id}`} style={{ textDecoration: "none", display: "flex", flexDirection: "column", borderRadius: "24px", overflow: "hidden" }} className="glass-hover">
+              <div style={{ height: "240px", overflow: "hidden" }}>
                 <img src={post.coverImage} alt={post.title} className="card-img" />
               </div>
-              <div style={{ padding: "0 12px 24px" }}>
+              <div style={{ padding: "24px", display: "flex", flexDirection: "column", flex: 1 }}>
                 <span style={{ fontSize: "13px", color: "#0d9488", fontWeight: 800, textTransform: "uppercase", letterSpacing: "1px", marginBottom: "12px", display: "block" }}>
                   {post.category}
                 </span>

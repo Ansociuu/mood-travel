@@ -1,9 +1,11 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Plane, Menu, X } from "lucide-react";
 
 export default function Navbar() {
+  const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenu, setMobileMenu] = useState(false);
 
@@ -44,11 +46,11 @@ export default function Navbar() {
 
       {/* Desktop Nav */}
       <div className="nav-desktop" style={{ display: "flex", gap: "32px", alignItems: "center" }}>
-        <Link href="/" className={scrolled ? "nav-link" : "nav-link-light"} style={{textDecoration: "none"}}>Khám phá</Link>
-        <Link href="/tours" className={scrolled ? "nav-link" : "nav-link-light"} style={{textDecoration: "none"}}>Tour</Link>
-        <Link href="/homestays" className={scrolled ? "nav-link" : "nav-link-light"} style={{textDecoration: "none"}}>Homestay</Link>
-        <Link href="/blog" className={scrolled ? "nav-link" : "nav-link-light"} style={{textDecoration: "none"}}>Blog</Link>
-        <Link href="/contact" className={scrolled ? "nav-link" : "nav-link-light"} style={{textDecoration: "none"}}>Liên hệ</Link>
+        <Link href="/" className={`${scrolled ? "nav-link" : "nav-link-light"} ${pathname === "/" ? "active" : ""}`} style={{textDecoration: "none"}}>Khám phá</Link>
+        <Link href="/tours" className={`${scrolled ? "nav-link" : "nav-link-light"} ${pathname.startsWith("/tours") ? "active" : ""}`} style={{textDecoration: "none"}}>Tour</Link>
+        <Link href="/homestays" className={`${scrolled ? "nav-link" : "nav-link-light"} ${pathname.startsWith("/homestays") ? "active" : ""}`} style={{textDecoration: "none"}}>Homestay</Link>
+        <Link href="/blog" className={`${scrolled ? "nav-link" : "nav-link-light"} ${pathname.startsWith("/blog") ? "active" : ""}`} style={{textDecoration: "none"}}>Blog</Link>
+        <Link href="/contact" className={`${scrolled ? "nav-link" : "nav-link-light"} ${pathname.startsWith("/contact") ? "active" : ""}`} style={{textDecoration: "none"}}>Liên hệ</Link>
       </div>
 
       <div className="nav-auth" style={{ display: "flex", gap: "12px", alignItems: "center" }}>

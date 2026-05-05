@@ -90,11 +90,11 @@ body {
 }
 .glass-hover:hover {
   transform: translateY(-8px);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.06);
-  border-color: rgba(0,0,0,0.1) !important;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+  border-color: rgba(13,148,136,0.3) !important;
 }
 .glass-hover:hover .card-img {
-  transform: scale(1.05);
+  transform: scale(1.08);
 }
 .card-img {
   transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -120,8 +120,22 @@ body {
   transition: color 0.2s;
   cursor: pointer;
   background: none; border: none;
+  position: relative;
 }
-.nav-link:hover { color: #0d9488; }
+.nav-link:hover, .nav-link.active { color: #0d9488; }
+.nav-link::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: -4px;
+  left: 0;
+  background-color: #0d9488;
+  transition: width 0.3s ease;
+}
+.nav-link:hover::after, .nav-link.active::after {
+  width: 100%;
+}
 .nav-link-light {
   color: rgba(255,255,255,0.8);
   text-decoration: none;
@@ -130,8 +144,22 @@ body {
   transition: color 0.2s;
   cursor: pointer;
   background: none; border: none;
+  position: relative;
 }
-.nav-link-light:hover { color: #fff; }
+.nav-link-light:hover, .nav-link-light.active { color: #fff; }
+.nav-link-light::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: -4px;
+  left: 0;
+  background-color: #fff;
+  transition: width 0.3s ease;
+}
+.nav-link-light:hover::after, .nav-link-light.active::after {
+  width: 100%;
+}
 
 .tag-badge {
   display: inline-flex;
@@ -254,6 +282,12 @@ select option { background: #fff; color: #0f172a; }
 .auth-social-btn:hover {
   background: #f8fafc;
   border-color: rgba(0,0,0,0.15);
+}
+
+@media (min-width: 1024px) {
+  .auth-visual {
+    display: block !important;
+  }
 }
 
 /* === TOURS PAGE === */

@@ -10,7 +10,7 @@ import { MapPin, Heart, Moon, Search, Filter, SlidersHorizontal, ArrowDownAZ } f
 export default function ToursPage() {
   const router = useRouter();
   const [regionFilters, setRegionFilters] = useState([]);
-  const [priceFilter, setPriceFilter] = useState("all");
+  const [maxPrice, setMaxPrice] = useState(10000000);
   const [durationFilters, setDurationFilters] = useState([]);
   const [sortBy, setSortBy] = useState("default");
   const [wishlist, setWishlist] = useState({});
@@ -25,9 +25,7 @@ export default function ToursPage() {
 
     // Price
     const price = getParsedPrice(tour.price);
-    if (priceFilter === "under_2m" && price >= 2000000) return false;
-    if (priceFilter === "2m_4m" && (price < 2000000 || price > 4000000)) return false;
-    if (priceFilter === "over_4m" && price <= 4000000) return false;
+    if (price > maxPrice) return false;
 
     // Duration
     if (durationFilters.length > 0) {
@@ -102,7 +100,7 @@ export default function ToursPage() {
           </button>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 3fr", gap: "40px" }} className="tours-layout-grid">
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 3fr", gap: "40px", alignItems: "start" }} className="tours-layout-grid">
 
           {/* LEFT SIDEBAR: FILTERS */}
           <aside className={`filters-sidebar ${showMobileFilters ? "show" : ""}`} style={{ display: "flex", flexDirection: "column", gap: "32px", position: "sticky", top: "100px", height: "max-content" }}>
@@ -131,19 +129,13 @@ export default function ToursPage() {
 
               {/* Mức giá */}
               <div style={{ marginBottom: "24px" }}>
-                <h4 style={{ fontSize: "15px", fontWeight: 700, color: "#0f172a", marginBottom: "12px" }}>Mức giá</h4>
+                <h4 style={{ fontSize: "15px", fontWeight: 700, color: "#0f172a", marginBottom: "12px" }}>Mức giá tối đa</h4>
                 <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                  {[
-                    { val: "all", label: "Tất cả" },
-                    { val: "under_2m", label: "Dưới 2.000.000₫" },
-                    { val: "2m_4m", label: "2.000.000₫ - 4.000.000₫" },
-                    { val: "over_4m", label: "Trên 4.000.000₫" }
-                  ].map(opt => (
-                    <label key={opt.val} style={{ display: "flex", alignItems: "center", gap: "10px", fontSize: "14px", color: "#475569", cursor: "pointer", fontWeight: 500 }}>
-                      <input type="radio" name="price" checked={priceFilter === opt.val} onChange={() => setPriceFilter(opt.val)} style={{ width: "16px", height: "16px", accentColor: "#0d9488", cursor: "pointer" }} />
-                      {opt.label}
-                    </label>
-                  ))}
+                  <input type="range" min="500000" max="10000000" step="500000" value={maxPrice} onChange={(e) => setMaxPrice(Number(e.target.value))} style={{ width: "100%", accentColor: "#0d9488", cursor: "pointer" }} />
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", color: "#64748b", fontWeight: 600 }}>
+                    <span>0₫</span>
+                    <span style={{ color: "#0d9488" }}>{maxPrice.toLocaleString('vi-VN')}₫</span>
+                  </div>
                 </div>
               </div>
 
@@ -234,7 +226,7 @@ export default function ToursPage() {
                 <Search size={48} color="#cbd5e1" style={{ margin: "0 auto 16px" }} />
                 <h3 style={{ fontSize: "18px", fontWeight: 700, color: "#0f172a", marginBottom: "8px" }}>Không tìm thấy kết quả</h3>
                 <p style={{ color: "#64748b", fontSize: "14px", fontWeight: 500 }}>Thử điều chỉnh bộ lọc để xem nhiều tour hơn nhé.</p>
-                <button onClick={() => { setRegionFilters([]); setPriceFilter("all"); setDurationFilters([]); }} style={{ marginTop: "20px", background: "#f8fafc", border: "1px solid rgba(0,0,0,0.1)", color: "#0f172a", padding: "10px 20px", borderRadius: "10px", cursor: "pointer", fontWeight: 600, fontSize: "14px" }}>
+                <button onClick={() => { setRegionFilters([]); setMaxPrice(10000000); setDurationFilters([]); }} style={{ marginTop: "20px", background: "#f8fafc", border: "1px solid rgba(0,0,0,0.1)", color: "#0f172a", padding: "10px 20px", borderRadius: "10px", cursor: "pointer", fontWeight: 600, fontSize: "14px" }}>
                   Xóa bộ lọc
                 </button>
               </div>
