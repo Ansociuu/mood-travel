@@ -1,9 +1,9 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
-export default function AuthCallback() {
+function AuthCallbackHandler() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -43,5 +43,17 @@ export default function AuthCallback() {
         <p style={{ color: "#64748b" }}>Vui lòng đợi trong giây lát...</p>
       </div>
     </div>
+  );
+}
+
+export default function AuthCallback() {
+  return (
+    <Suspense fallback={
+      <div style={{ height: "60vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <Loader2 size={48} className="animate-spin" style={{ color: "#0d9488" }} />
+      </div>
+    }>
+      <AuthCallbackHandler />
+    </Suspense>
   );
 }
