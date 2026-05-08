@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Plane, Menu, X } from "lucide-react";
 
 export default function Navbar() {
@@ -9,17 +9,28 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenu, setMobileMenu] = useState(false);
 
+  const [user, setUser] = useState(null);
+  const router = useRouter();
+
   useEffect(() => {
     const onScroll = () => {
       setScrolled(window.scrollY > 40);
     };
     window.addEventListener("scroll", onScroll);
+    
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const scrollTo = (id) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-    setMobileMenu(false);
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setUser(null);
+    router.push("/");
   };
 
   const glassNav = {
@@ -54,8 +65,22 @@ export default function Navbar() {
       </div>
 
       <div className="nav-auth" style={{ display: "flex", gap: "12px", alignItems: "center" }}>
-        <Link href="/login" style={{ textDecoration: "none", background: "transparent", border: scrolled ? "1px solid rgba(0,0,0,0.1)" : "1px solid rgba(255,255,255,0.3)", color: textColor, padding: "8px 20px", borderRadius: "10px", cursor: "pointer", fontSize: "13px", fontFamily: "'Inter', sans-serif", fontWeight: 600, transition: "all 0.2s" }}>Đăng nhập</Link>
-        <Link href="/register" className="shimmer-btn" style={{ textDecoration: "none", display: "inline-block", padding: "8px 20px", borderRadius: "10px", cursor: "pointer", fontSize: "13px", fontWeight: 600, border: "none", boxShadow: "0 4px 15px rgba(20,184,166,0.3)" }}>Đăng ký</Link>
+        {user ? (
+          <>
+            <span style={{ color: textColor, fontSize: "14px", fontWeight: 600 }}>Chào, {user.name}</span>
+            <button 
+              onClick={handleLogout}
+              style={{ textDecoration: "none", background: "transparent", border: scrolled ? "1px solid rgba(0,0,0,0.1)" : "1px solid rgba(255,255,255,0.3)", color: textColor, padding: "8px 20px", borderRadius: "10px", cursor: "pointer", fontSize: "13px", fontFamily: "'Inter', sans-serif", fontWeight: 600, transition: "all 0.2s" }}
+            >
+              Đăng xuất
+            </button>
+          </>
+        ) : (
+          <>
+            <Link href="/login" style={{ textDecoration: "none", background: "transparent", border: scrolled ? "1px solid rgba(0,0,0,0.1)" : "1px solid rgba(255,255,255,0.3)", color: textColor, padding: "8px 20px", borderRadius: "10px", cursor: "pointer", fontSize: "13px", fontFamily: "'Inter', sans-serif", fontWeight: 600, transition: "all 0.2s" }}>Đăng nhập</Link>
+            <Link href="/register" className="shimmer-btn" style={{ textDecoration: "none", display: "inline-block", padding: "8px 20px", borderRadius: "10px", cursor: "pointer", fontSize: "13px", fontWeight: 600, border: "none", boxShadow: "0 4px 15px rgba(20,184,166,0.3)" }}>Đăng ký</Link>
+          </>
+        )}
       </div>
 
       {/* Mobile hamburger */}

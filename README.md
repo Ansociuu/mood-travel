@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MoodTravel
 
-## Getting Started
+Dự án MoodTravel là một hệ thống bao gồm Frontend (Next.js) và Backend (NestJS).
 
-First, run the development server:
+## Kiến trúc
 
+Dự án được cấu trúc theo dạng Monorepo với 2 thư mục chính:
+- `/frontend`: Chứa mã nguồn của Next.js, xây dựng giao diện người dùng.
+- `/backend`: Chứa mã nguồn của NestJS, cung cấp API và tương tác với cơ sở dữ liệu MySQL thông qua Prisma.
+
+## Yêu cầu hệ thống
+
+- Node.js (phiên bản khuyến nghị: >= 18)
+- MySQL Server đang chạy ở local.
+
+## Hướng dẫn cài đặt và chạy
+
+### 1. Frontend
+
+Di chuyển vào thư mục frontend và cài đặt dependencies:
 ```bash
+cd frontend
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Frontend sẽ chạy trên `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+### 2. Backend
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Di chuyển vào thư mục backend và cài đặt dependencies:
+```bash
+cd backend
+npm install
+```
 
-## Learn More
+Cập nhật thông tin kết nối MySQL trong file `backend/.env`:
+```env
+DATABASE_URL="mysql://<username>:<password>@localhost:3306/moodtravel"
+```
 
-To learn more about Next.js, take a look at the following resources:
+Khởi tạo database và chạy Prisma (nếu có schema mới):
+```bash
+npx prisma db push
+# hoặc
+npx prisma migrate dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Chạy server backend:
+```bash
+npm run start:dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Backend sẽ chạy trên `http://localhost:3000` (mặc định của NestJS, có thể đổi port trong `main.ts` để tránh trùng lặp với frontend).
+*Lưu ý:* Nên đổi port frontend hoặc backend để tránh xung đột port 3000. Mặc định bạn có thể chạy frontend ở 3000 và backend ở 3001.
