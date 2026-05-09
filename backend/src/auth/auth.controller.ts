@@ -52,4 +52,19 @@ export class AuthController {
     const userData = encodeURIComponent(JSON.stringify(result.user));
     return res.redirect(`${frontendUrl}/callback?token=${result.access_token}&user=${userData}`);
   }
+
+  @Get('facebook')
+  @UseGuards(AuthGuard('facebook'))
+  @ApiOperation({ summary: 'Đăng nhập bằng Facebook' })
+  async facebookAuth(@Req() req) {}
+
+  @Get('facebook/callback')
+  @UseGuards(AuthGuard('facebook'))
+  @ApiOperation({ summary: 'Callback xử lý sau khi Facebook xác thực' })
+  async facebookAuthRedirect(@Req() req, @Res() res) {
+    const result = await this.authService.facebookLogin(req);
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    const userData = encodeURIComponent(JSON.stringify(result.user));
+    return res.redirect(`${frontendUrl}/callback?token=${result.access_token}&user=${userData}`);
+  }
 }

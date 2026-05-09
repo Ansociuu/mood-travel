@@ -146,4 +146,36 @@ export class AuthService {
       },
     };
   }
+
+  async facebookLogin(req) {
+    if (!req.user) {
+      throw new UnauthorizedException('Không có thông tin từ Facebook');
+    }
+
+    const { email, firstName, lastName } = req.user;
+    let user = await this.usersService.findByEmail(email);
+
+    if (!user) {
+      user = await this.prisma.user.create({
+        data: {
+          email,
+          name: `${firstName} ${lastName}`,
+          password: '',
+          isVerified: true,
+        },
+      });
+    }
+
+    const payload = { email: user.email, sub: user.id, role: user.role };
+    return {
+      access_token: this.jwtService.sign(payload),
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        avatar: user.avatar,
+      },
+    };
+  }
 }
