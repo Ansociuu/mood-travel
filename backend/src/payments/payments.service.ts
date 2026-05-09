@@ -107,7 +107,7 @@ export class PaymentsService {
 
   private sortAndStringify(obj: any) {
     let keys = Object.keys(obj).sort();
-    let qs = [];
+    let qs: string[] = [];
     for (let key of keys) {
       if (obj[key] !== undefined && obj[key] !== null && obj[key] !== '') {
         qs.push(encodeURIComponent(key) + '=' + encodeURIComponent(String(obj[key])).replace(/%20/g, '+'));
