@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Mail, Lock, Eye, EyeOff, User, Loader2, CheckCircle2 } from "lucide-react";
 import { authApi } from "@/lib/api";
+import LegalModal from "@/components/LegalModal";
 
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -16,6 +17,11 @@ export default function RegisterPage() {
   const [isVerified, setIsVerified] = useState(false);
   const [otp, setOtp] = useState("");
   const [termsAccepted, setTermsAccepted] = useState(false);
+  
+  // Modal states
+  const [isTermsOpen, setIsTermsOpen] = useState(false);
+  const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
+  
   const router = useRouter();
 
   const handleSubmit = async (e) => {
@@ -217,7 +223,21 @@ export default function RegisterPage() {
             style={{ marginTop: "4px", width: "16px", height: "16px", cursor: "pointer" }}
           />
           <label htmlFor="terms" style={{ fontSize: "13px", color: "#64748b", lineHeight: "1.5", cursor: "pointer" }}>
-            Tôi đồng ý với <a href="#" style={{ color: "#0d9488", fontWeight: 600, textDecoration: "none" }}>Điều khoản dịch vụ</a> và <a href="#" style={{ color: "#0d9488", fontWeight: 600, textDecoration: "none" }}>Chính sách bảo mật</a> của VietJourney.
+            Tôi đồng ý với{" "}
+            <span 
+              onClick={(e) => { e.preventDefault(); setIsTermsOpen(true); }}
+              style={{ color: "#0d9488", fontWeight: 600, textDecoration: "none", cursor: "pointer" }}
+            >
+              Điều khoản dịch vụ
+            </span>{" "}
+            và{" "}
+            <span 
+              onClick={(e) => { e.preventDefault(); setIsPrivacyOpen(true); }}
+              style={{ color: "#0d9488", fontWeight: 600, textDecoration: "none", cursor: "pointer" }}
+            >
+              Chính sách bảo mật
+            </span>{" "}
+            của VietJourney.
           </label>
         </div>
 
@@ -274,6 +294,51 @@ export default function RegisterPage() {
       <div style={{ textAlign: "center", marginTop: "32px", fontSize: "14px", color: "#64748b", fontWeight: 500 }}>
         Đã có tài khoản? <Link href="/login" style={{ color: "#0d9488", fontWeight: 700, textDecoration: "none" }}>Đăng nhập</Link>
       </div>
+
+      {/* Modals */}
+      <LegalModal 
+        isOpen={isTermsOpen} 
+        onClose={() => setIsTermsOpen(false)} 
+        title="Điều khoản dịch vụ"
+      >
+        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+          <p>Chào mừng bạn đến với VietJourney. Bằng việc đăng ký tài khoản, bạn đồng ý với các điều khoản sau:</p>
+          <section>
+            <h4 style={{ color: "#1e293b", marginBottom: "8px" }}>1. Tài khoản</h4>
+            <p>Bạn chịu trách nhiệm bảo mật mật khẩu và các thông tin đăng nhập cá nhân.</p>
+          </section>
+          <section>
+            <h4 style={{ color: "#1e293b", marginBottom: "8px" }}>2. Dịch vụ</h4>
+            <p>VietJourney cung cấp nền tảng đặt phòng Homestay và Tour trải nghiệm văn hóa.</p>
+          </section>
+          <section>
+            <h4 style={{ color: "#1e293b", marginBottom: "8px" }}>3. Hủy phòng</h4>
+            <p>Mỗi dịch vụ sẽ có chính sách hoàn tiền riêng, vui lòng kiểm tra kỹ trước khi thanh toán.</p>
+          </section>
+        </div>
+      </LegalModal>
+
+      <LegalModal 
+        isOpen={isPrivacyOpen} 
+        onClose={() => setIsPrivacyOpen(false)} 
+        title="Chính sách bảo mật"
+      >
+        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+          <p>Chúng tôi tôn trọng quyền riêng tư của bạn. Dữ liệu của bạn được bảo vệ như sau:</p>
+          <section>
+            <h4 style={{ color: "#1e293b", marginBottom: "8px" }}>1. Dữ liệu thu thập</h4>
+            <p>Tên, Email, và ảnh đại diện khi bạn đăng nhập qua Google/Facebook.</p>
+          </section>
+          <section>
+            <h4 style={{ color: "#1e293b", marginBottom: "8px" }}>2. Sử dụng dữ liệu</h4>
+            <p>Chúng tôi chỉ sử dụng thông tin để quản lý đơn đặt phòng và liên hệ khi cần thiết.</p>
+          </section>
+          <section>
+            <h4 style={{ color: "#1e293b", marginBottom: "8px" }}>3. Bảo mật</h4>
+            <p>Dữ liệu được mã hóa và lưu trữ an toàn trên hệ thống máy chủ hiện đại.</p>
+          </section>
+        </div>
+      </LegalModal>
     </>
   );
 }
