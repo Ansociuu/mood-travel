@@ -190,6 +190,9 @@ export class AuthService {
           isVerified: true, // Social accounts are trusted
         },
       });
+
+      // Gửi mail chào mừng cho người dùng mới từ Google
+      this.mailService.sendWelcomeEmail(user.email, user.name || 'Khách hàng');
     }
 
     const payload = { email: user.email, sub: user.id, role: user.role };
@@ -222,6 +225,9 @@ export class AuthService {
           isVerified: true,
         },
       });
+
+      // Gửi mail chào mừng cho người dùng mới từ Facebook
+      this.mailService.sendWelcomeEmail(user.email, user.name || 'Khách hàng');
     }
 
     const payload = { email: user.email, sub: user.id, role: user.role };
