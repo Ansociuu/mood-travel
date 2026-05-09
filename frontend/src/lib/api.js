@@ -73,3 +73,20 @@ export const toursApi = {
   },
   getById: (id) => apiRequest(`/tours/${id}`),
 };
+
+export const bookingsApi = {
+  create: (bookingData) => apiRequest('/bookings', {
+    method: 'POST',
+    body: bookingData,
+  }),
+  getMyBookings: () => apiRequest('/bookings/me'),
+  getById: (id) => apiRequest(`/bookings/${id}`),
+};
+
+export const paymentsApi = {
+  createVNPayUrl: (bookingId) => apiRequest('/payments/vnpay/create-url', {
+    method: 'POST',
+    body: { bookingId },
+  }),
+  verifyVNPayReturn: (queryString) => apiRequest(`/payments/vnpay/vnpay_return?${queryString}`),
+};

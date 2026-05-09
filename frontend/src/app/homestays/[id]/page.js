@@ -96,6 +96,13 @@ export default function HomestayDetailPage() {
 
 
   const handleBooking = () => {
+    const userStr = localStorage.getItem('user');
+    if (!userStr) {
+      alert("Vui lòng đăng nhập để tiến hành đặt chỗ!");
+      router.push("/login?redirect=/homestays/" + id);
+      return;
+    }
+
     // Save to local storage for checkout
     const diffTime = Math.abs(dateRange[0].endDate - dateRange[0].startDate);
     const nights = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1;

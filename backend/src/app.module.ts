@@ -10,6 +10,8 @@ import { UploadModule } from './upload/upload.module';
 import { HotelsModule } from './hotels/hotels.module';
 import { RoomsModule } from './rooms/rooms.module';
 import { ToursModule } from './tours/tours.module';
+import { BookingsModule } from './bookings/bookings.module';
+import { PaymentsModule } from './payments/payments.module';
 
 @Module({
   imports: [
@@ -22,6 +24,8 @@ import { ToursModule } from './tours/tours.module';
     HotelsModule,
     RoomsModule,
     ToursModule,
+    BookingsModule,
+    PaymentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

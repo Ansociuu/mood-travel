@@ -39,10 +39,30 @@ export default function TourDetailPage() {
   }, [id]);
 
   const handleBooking = () => {
+    const userStr = localStorage.getItem('user');
+    if (!userStr) {
+      alert("Vui lòng đăng nhập để tiến hành đặt chỗ!");
+      router.push("/login?redirect=/tours/" + id);
+      return;
+    }
+
     if (!selectedAvailId) {
       alert("Vui lòng chọn Ngày khởi hành trước khi đặt!");
       return;
     }
+
+    const bookingData = {
+      type: 'tour',
+      tourId: tour.id,
+      tourName: tour.name,
+      checkIn: selectedAvail.startDate,
+      quantity: bookingGuests,
+      priceAtBooking: displayPrice,
+      totalAmount: Number(displayPrice) * bookingGuests,
+      image: mainImg
+    };
+    sessionStorage.setItem('pendingBooking', JSON.stringify(bookingData));
+
     router.push("/checkout");
   };
 
