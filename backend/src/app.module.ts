@@ -9,6 +9,7 @@ import { MailModule } from './mail/mail.module';
 import { UploadModule } from './upload/upload.module';
 import { HotelsModule } from './hotels/hotels.module';
 import { RoomsModule } from './rooms/rooms.module';
+import { ToursModule } from './tours/tours.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { RoomsModule } from './rooms/rooms.module';
     UploadModule,
     HotelsModule,
     RoomsModule,
+    ToursModule,
   ],
   controllers: [AppController],
   providers: [AppService],

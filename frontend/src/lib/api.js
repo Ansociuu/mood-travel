@@ -65,3 +65,11 @@ export const hotelsApi = {
 export const roomsApi = {
   getByHotel: (hotelId) => apiRequest(`/rooms/hotel/${hotelId}`),
 };
+
+export const toursApi = {
+  getAll: (params) => {
+    const query = new URLSearchParams(params).toString();
+    return apiRequest(`/tours${query ? `?${query}` : ''}`);
+  },
+  getById: (id) => apiRequest(`/tours/${id}`),
+};

@@ -10,9 +10,9 @@ import { hotelsApi } from "@/lib/api";
 import dynamic from "next/dynamic";
 import { Search, MapPin, Bed, Bath, Users, Star, Heart, Calendar, Filter, Map, List, Home, Tent, Building2, Trees } from "lucide-react";
 
-const MapComponent = dynamic(() => import('@/components/MapComponent'), { 
-  ssr: false, 
-  loading: () => <div style={{ height: "100%", width: "100%", background: "#f8fafc", borderRadius: "24px", display: "flex", alignItems: "center", justifyContent: "center", color: "#64748b" }}>Đang tải bản đồ...</div> 
+const MapComponent = dynamic(() => import('@/components/MapComponent'), {
+  ssr: false,
+  loading: () => <div style={{ height: "100%", width: "100%", background: "#f8fafc", borderRadius: "24px", display: "flex", alignItems: "center", justifyContent: "center", color: "#64748b" }}>Đang tải bản đồ...</div>
 });
 
 export default function HomestaysPage() {
@@ -47,7 +47,7 @@ export default function HomestaysPage() {
           per: "đêm",
           rating: h.rating,
           beds: h.rooms?.[0]?.capacity || 2, // Tạm lấy theo số người
-          baths: 1, 
+          baths: 1,
           guests: h.rooms?.[0]?.capacity || 2,
           lat: h.lat,
           lng: h.lng,
@@ -63,7 +63,7 @@ export default function HomestaysPage() {
     };
     fetchHomestays();
   }, []);
-  
+
   // Advanced Filter Modal states
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [priceRange, setPriceRange] = useState("all");
@@ -72,7 +72,7 @@ export default function HomestaysPage() {
   const [selectedTypes, setSelectedTypes] = useState([]);
   const [minRating, setMinRating] = useState(0);
   const [searchFocus, setSearchFocus] = useState(false);
-  
+
   const filteredLocations = Array.from(new Set(homestays.map(h => h.location))).filter(loc => loc.toLowerCase().includes(searchQuery.toLowerCase()) && searchQuery);
   const filteredHotelNames = homestays.filter(h => h.name.toLowerCase().includes(searchQuery.toLowerCase()) && searchQuery);
 
@@ -88,7 +88,7 @@ export default function HomestaysPage() {
     const matchType = selectedTypes.length === 0 || selectedTypes.includes(h.type);
     const matchRating = h.rating >= minRating;
     const matchAmenities = selectedAmenities.length === 0 || selectedAmenities.every(am => h.amenities.includes(am));
-    
+
     let matchPrice = true;
     const numPrice = parsePrice(h.price);
     if (priceRange === "under1m") matchPrice = numPrice < 1000000;
@@ -117,13 +117,13 @@ export default function HomestaysPage() {
 
   return (
     <>
-      <Navbar theme="light" />
-      
+      <Navbar theme="dark" />
+
       {/* SPACING CHO TOP NAV */}
       <div style={{ height: "72px" }}></div>
 
       <main style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 20px 80px" }}>
-        
+
         {/* HEADER TITLE */}
         <div style={{ padding: "40px 0 30px", textAlign: "center" }}>
           <h1 style={{ fontSize: "36px", fontWeight: 800, color: "#0f172a", marginBottom: "12px", fontFamily: "'Plus Jakarta Sans', sans-serif", letterSpacing: "-1px" }}>Tìm kiếm chỗ ở lý tưởng</h1>
@@ -133,28 +133,28 @@ export default function HomestaysPage() {
         {/* TOP FILTER BAR */}
         <div style={{ position: "sticky", top: "82px", zIndex: 90, background: "#ffffff", borderRadius: "24px", border: "1px solid rgba(0,0,0,0.05)", padding: "20px", boxShadow: "0 10px 30px rgba(0,0,0,0.02)", marginBottom: "40px" }}>
           <div style={{ display: "flex", gap: "16px", alignItems: "center", flexWrap: "wrap" }}>
-            
+
             <div style={{ flex: 1, minWidth: "300px", position: "relative" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "12px", background: "#f8fafc", padding: "12px 20px", borderRadius: "16px", border: "1px solid rgba(0,0,0,0.05)", zIndex: searchFocus ? 101 : 1, position: "relative" }}>
                 <MapPin size={18} color="#64748b" />
-                <input 
-                  type="text" 
-                  value={searchQuery} 
-                  onChange={(e) => setSearchQuery(e.target.value)} 
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                   onFocus={() => setSearchFocus(true)}
                   onBlur={() => setTimeout(() => setSearchFocus(false), 200)}
-                  placeholder="Tìm kiếm địa điểm, tên khách sạn..." 
-                  style={{ background: "transparent", border: "none", outline: "none", fontSize: "15px", fontWeight: 600, color: "#0f172a", width: "100%" }} 
+                  placeholder="Tìm kiếm địa điểm, tên khách sạn..."
+                  style={{ background: "transparent", border: "none", outline: "none", fontSize: "15px", fontWeight: 600, color: "#0f172a", width: "100%" }}
                 />
               </div>
-              
+
               {searchFocus && searchQuery && (filteredLocations.length > 0 || filteredHotelNames.length > 0) && (
                 <div style={{ position: "absolute", top: "100%", left: 0, right: 0, marginTop: "8px", background: "#fff", borderRadius: "16px", boxShadow: "0 20px 40px rgba(0,0,0,0.1)", border: "1px solid rgba(0,0,0,0.05)", padding: "12px 0", zIndex: 100, maxHeight: "300px", overflowY: "auto" }}>
                   {filteredLocations.length > 0 && (
                     <div style={{ padding: "0 16px 8px" }}>
                       <h4 style={{ fontSize: "12px", textTransform: "uppercase", color: "#94a3b8", fontWeight: 700, marginBottom: "8px", letterSpacing: "1px" }}>Địa điểm</h4>
                       {filteredLocations.map(loc => (
-                        <div key={loc} onClick={() => {setSearchQuery(loc); setSearchFocus(false);}} style={{ padding: "10px 16px", cursor: "pointer", borderRadius: "8px", display: "flex", alignItems: "center", gap: "12px" }} onMouseEnter={e=>e.currentTarget.style.background="#f1f5f9"} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
+                        <div key={loc} onClick={() => { setSearchQuery(loc); setSearchFocus(false); }} style={{ padding: "10px 16px", cursor: "pointer", borderRadius: "8px", display: "flex", alignItems: "center", gap: "12px" }} onMouseEnter={e => e.currentTarget.style.background = "#f1f5f9"} onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
                           <MapPin size={16} color="#0d9488" />
                           <span style={{ fontSize: "15px", fontWeight: 600, color: "#0f172a" }}>{loc}</span>
                         </div>
@@ -165,7 +165,7 @@ export default function HomestaysPage() {
                     <div style={{ padding: "8px 16px 0", borderTop: filteredLocations.length > 0 ? "1px solid #f1f5f9" : "none" }}>
                       <h4 style={{ fontSize: "12px", textTransform: "uppercase", color: "#94a3b8", fontWeight: 700, marginBottom: "8px", letterSpacing: "1px" }}>Chỗ ở</h4>
                       {filteredHotelNames.map(h => (
-                        <div key={h.id} onClick={() => {setSearchQuery(h.name); setSearchFocus(false);}} style={{ padding: "10px 16px", cursor: "pointer", borderRadius: "8px", display: "flex", alignItems: "center", gap: "12px" }} onMouseEnter={e=>e.currentTarget.style.background="#f1f5f9"} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
+                        <div key={h.id} onClick={() => { setSearchQuery(h.name); setSearchFocus(false); }} style={{ padding: "10px 16px", cursor: "pointer", borderRadius: "8px", display: "flex", alignItems: "center", gap: "12px" }} onMouseEnter={e => e.currentTarget.style.background = "#f1f5f9"} onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
                           <Home size={16} color="#d97706" />
                           <span style={{ fontSize: "15px", fontWeight: 600, color: "#0f172a" }}>{h.name}</span>
                         </div>
@@ -177,7 +177,7 @@ export default function HomestaysPage() {
             </div>
 
             <div style={{ position: "relative" }}>
-              <div onClick={() => setShowDatePicker(!showDatePicker)} style={{ display: "flex", alignItems: "center", gap: "12px", background: "#f8fafc", padding: "14px 20px", borderRadius: "16px", border: "1px solid rgba(0,0,0,0.05)", cursor: "pointer", transition: "all 0.2s" }} onMouseEnter={e=>e.currentTarget.style.background="#f1f5f9"} onMouseLeave={e=>e.currentTarget.style.background="#f8fafc"}>
+              <div onClick={() => setShowDatePicker(!showDatePicker)} style={{ display: "flex", alignItems: "center", gap: "12px", background: "#f8fafc", padding: "14px 20px", borderRadius: "16px", border: "1px solid rgba(0,0,0,0.05)", cursor: "pointer", transition: "all 0.2s" }} onMouseEnter={e => e.currentTarget.style.background = "#f1f5f9"} onMouseLeave={e => e.currentTarget.style.background = "#f8fafc"}>
                 <Calendar size={18} color="#64748b" />
                 <div style={{ fontSize: "15px", fontWeight: 600, color: hasSelectedDate ? "#0f172a" : "#64748b" }}>
                   {hasSelectedDate ? `${dateRange[0].startDate.toLocaleDateString('vi-VN')} - ${dateRange[0].endDate.toLocaleDateString('vi-VN')}` : "Chọn ngày"}
@@ -210,7 +210,7 @@ export default function HomestaysPage() {
               <Search size={18} /> Tìm
             </button>
 
-            <button onClick={() => setShowFilterModal(true)} style={{ background: "#ffffff", color: "#0f172a", border: "1px solid rgba(0,0,0,0.1)", padding: "14px", borderRadius: "16px", cursor: "pointer", display: "flex", alignItems: "center", gap: "8px", transition: "all 0.2s" }} onMouseEnter={e=>e.currentTarget.style.background="#f8fafc"} onMouseLeave={e=>e.currentTarget.style.background="#ffffff"}>
+            <button onClick={() => setShowFilterModal(true)} style={{ background: "#ffffff", color: "#0f172a", border: "1px solid rgba(0,0,0,0.1)", padding: "14px", borderRadius: "16px", cursor: "pointer", display: "flex", alignItems: "center", gap: "8px", transition: "all 0.2s" }} onMouseEnter={e => e.currentTarget.style.background = "#f8fafc"} onMouseLeave={e => e.currentTarget.style.background = "#ffffff"}>
               <Filter size={18} />
             </button>
 
@@ -219,12 +219,12 @@ export default function HomestaysPage() {
             </button>
           </div>
         </div>
-        
+
         {/* CATEGORY BAR */}
         <div style={{ display: "flex", gap: "24px", overflowX: "auto", paddingBottom: "24px", marginBottom: "24px", scrollbarWidth: "none" }}>
           {categories.map((cat) => (
-            <div 
-              key={cat.id} 
+            <div
+              key={cat.id}
               onClick={() => setCategory(cat.id)}
               style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px", cursor: "pointer", color: category === cat.id ? "#0f172a" : "#64748b", borderBottom: category === cat.id ? "2px solid #0f172a" : "2px solid transparent", paddingBottom: "12px", transition: "all 0.2s", minWidth: "80px" }}
               onMouseEnter={e => { if (category !== cat.id) e.currentTarget.style.color = "#0f172a"; }}
@@ -263,11 +263,11 @@ export default function HomestaysPage() {
         ) : filteredHomestays.length > 0 ? (
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: "24px" }}>
             {filteredHomestays.map((h) => (
-              <HotelCard 
-                key={h.id} 
-                hotel={h} 
-                isWishlist={wishlist[h.id]} 
-                toggleWishlist={toggleWishlist} 
+              <HotelCard
+                key={h.id}
+                hotel={h}
+                isWishlist={wishlist[h.id]}
+                toggleWishlist={toggleWishlist}
               />
             ))}
           </div>
@@ -276,7 +276,7 @@ export default function HomestaysPage() {
             <Search size={48} color="#cbd5e1" style={{ margin: "0 auto 16px" }} />
             <h3 style={{ fontSize: "18px", fontWeight: 700, color: "#0f172a", marginBottom: "8px" }}>Không tìm thấy homestay nào phù hợp</h3>
             <p style={{ color: "#64748b", fontSize: "14px", fontWeight: 500 }}>Thử thay đổi từ khóa tìm kiếm hoặc điều chỉnh bộ lọc.</p>
-            <button onClick={() => {setSearchQuery(""); setGuests(0); setPriceRange("all"); setMinBedrooms(0); setSelectedAmenities([]); setSelectedTypes([]); setMinRating(0);}} style={{ marginTop: "20px", background: "#f8fafc", border: "1px solid rgba(0,0,0,0.1)", color: "#0f172a", padding: "10px 20px", borderRadius: "10px", cursor: "pointer", fontWeight: 600, fontSize: "14px" }}>
+            <button onClick={() => { setSearchQuery(""); setGuests(0); setPriceRange("all"); setMinBedrooms(0); setSelectedAmenities([]); setSelectedTypes([]); setMinRating(0); }} style={{ marginTop: "20px", background: "#f8fafc", border: "1px solid rgba(0,0,0,0.1)", color: "#0f172a", padding: "10px 20px", borderRadius: "10px", cursor: "pointer", fontWeight: 600, fontSize: "14px" }}>
               Xóa tất cả bộ lọc
             </button>
           </div>
@@ -289,7 +289,7 @@ export default function HomestaysPage() {
         <div style={{ position: "fixed", inset: 0, zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center" }}>
           {/* Backdrop */}
           <div onClick={() => setShowFilterModal(false)} style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.4)", backdropFilter: "blur(4px)" }}></div>
-          
+
           {/* Modal Content */}
           <div style={{ position: "relative", background: "#ffffff", width: "100%", maxWidth: "500px", borderRadius: "24px", padding: "32px", boxShadow: "0 20px 40px rgba(0,0,0,0.2)", zIndex: 1001 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "32px", paddingBottom: "16px", borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
@@ -378,7 +378,7 @@ export default function HomestaysPage() {
 
             {/* Footer Buttons */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: "20px", borderTop: "1px solid rgba(0,0,0,0.05)" }}>
-              <button onClick={() => {setPriceRange("all"); setMinBedrooms(0); setSelectedAmenities([]); setSelectedTypes([]); setMinRating(0);}} style={{ background: "none", border: "none", fontSize: "15px", fontWeight: 600, color: "#0f172a", cursor: "pointer", textDecoration: "underline" }}>Xóa tất cả</button>
+              <button onClick={() => { setPriceRange("all"); setMinBedrooms(0); setSelectedAmenities([]); setSelectedTypes([]); setMinRating(0); }} style={{ background: "none", border: "none", fontSize: "15px", fontWeight: 600, color: "#0f172a", cursor: "pointer", textDecoration: "underline" }}>Xóa tất cả</button>
               <button className="shimmer-btn" onClick={() => setShowFilterModal(false)} style={{ padding: "12px 24px", borderRadius: "12px", border: "none", fontSize: "15px", fontWeight: 700, cursor: "pointer" }}>
                 Hiển thị kết quả
               </button>

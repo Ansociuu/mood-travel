@@ -5,8 +5,14 @@ import 'dotenv/config';
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('Bắt đầu dọn dẹp dữ liệu cũ (Xóa Hotel, Room, User)...');
+  console.log('Bắt đầu dọn dẹp dữ liệu cũ (Xóa Hotel, Room, Tour, User)...');
   await prisma.review.deleteMany();
+  await prisma.bookingTour.deleteMany();
+  await prisma.bookingRoom.deleteMany();
+  await prisma.booking.deleteMany();
+  await prisma.tourAvailability.deleteMany();
+  await prisma.tourItinerary.deleteMany();
+  await prisma.tour.deleteMany();
   await prisma.roomAmenity.deleteMany();
   await prisma.hotelAmenity.deleteMany();
   await prisma.room.deleteMany();
@@ -199,6 +205,132 @@ async function main() {
           }
         });
       }
+    }
+  }
+
+  // 4. Create Tours
+  const toursData = [
+    {
+      name: 'Khám phá Hà Giang Loop - Cực Bắc Tổ Quốc',
+      description: 'Hành trình chinh phục những cung đường đèo hùng vĩ nhất Việt Nam. Trải nghiệm văn hóa đặc sắc của đồng bào dân tộc thiểu số và check-in Cột cờ Lũng Cú.',
+      location: 'Hà Giang',
+      durationDays: 3,
+      durationNights: 2,
+      basePrice: 2500000,
+      ownerId: owner1.id,
+      images: [
+        'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=1200&q=80',
+        'https://images.unsplash.com/photo-1574872288019-9eb101b4c95f?w=800&q=80'
+      ],
+      includes: ['Xe máy di chuyển', 'Homestay 2 đêm', 'Các bữa ăn theo lịch trình', 'Vé tham quan'],
+      excludes: ['Chi phí cá nhân', 'Đồ uống gọi thêm'],
+      itineraries: [
+        { dayNumber: 1, title: 'Hà Giang - Quản Bạ - Yên Minh', description: 'Bắt đầu hành trình chinh phục dốc Bắc Sum, cổng trời Quản Bạ. Chiều đến rừng thông Yên Minh.' },
+        { dayNumber: 2, title: 'Yên Minh - Đồng Văn - Lũng Cú', description: 'Khám phá cao nguyên đá Đồng Văn, dinh thự họ Vương và cột cờ Lũng Cú cực Bắc.' },
+        { dayNumber: 3, title: 'Đồng Văn - Mã Pì Lèng - Mèo Vạc', description: 'Chinh phục tứ đại đỉnh đèo Mã Pì Lèng, đi thuyền trên sông Nho Quế và trở về Hà Giang.' }
+      ]
+    },
+    {
+      name: 'Trekking Sapa - Chinh phục Fansipan',
+      description: 'Hành trình leo núi 2 ngày 1 đêm dành cho những người yêu thích mạo hiểm. Băng qua những khu rừng nguyên sinh và đón bình minh trên nóc nhà Đông Dương.',
+      location: 'Sapa',
+      durationDays: 2,
+      durationNights: 1,
+      basePrice: 1800000,
+      ownerId: owner2.id,
+      images: [
+        'https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?w=1200&q=80',
+        'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=800&q=80'
+      ],
+      includes: ['Hướng dẫn viên người bản địa', 'Porter mang đồ', 'Giấy phép leo núi', 'Trại ngủ đêm trên núi', 'Các bữa ăn'],
+      excludes: ['Túi ngủ cá nhân (có thể thuê thêm)', 'Cáp treo chiều về (nếu cần)'],
+      itineraries: [
+        { dayNumber: 1, title: 'Trạm Tôn - Trạm nghỉ 2800m', description: 'Bắt đầu trek từ Trạm Tôn, xuyên qua rừng trúc và rừng đỗ quyên. Cắm trại qua đêm tại cao độ 2800m.' },
+        { dayNumber: 2, title: 'Đỉnh Fansipan - Sapa', description: 'Dậy sớm đón bình minh, tiếp tục lên đỉnh 3143m. Chạm tay vào cột mốc và di chuyển xuống núi.' }
+      ]
+    },
+    {
+      name: 'Du thuyền Vịnh Lan Hạ 5 Sao',
+      description: 'Nghỉ dưỡng đẳng cấp trên du thuyền sang trọng. Khám phá vẻ đẹp hoang sơ của Vịnh Lan Hạ, chèo kayak và tận hưởng tiệc Sunset Party.',
+      location: 'Cát Bà, Hải Phòng',
+      durationDays: 2,
+      durationNights: 1,
+      basePrice: 3200000,
+      ownerId: owner1.id,
+      images: [
+        'https://images.unsplash.com/photo-1555400038-63f5ba517a47?w=1200&q=80',
+        'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80'
+      ],
+      includes: ['Phòng suite trên du thuyền', '4 bữa ăn cao cấp', 'Vé chèo Kayak', 'Trà chiều Sunset', 'Hướng dẫn viên'],
+      excludes: ['Đồ uống có cồn', 'Dịch vụ Spa'],
+      itineraries: [
+        { dayNumber: 1, title: 'Tuần Châu - Vịnh Lan Hạ - Hang Sáng Tối', description: 'Check-in du thuyền, thưởng thức bữa trưa. Chiều đi đò nan thăm Hang Sáng Tối. Tối dự tiệc BBQ trên boong tàu.' },
+        { dayNumber: 2, title: 'Làng chài Trà Báu - Tuần Châu', description: 'Đón bình minh với bài tập Tai Chi. Chèo Kayak tại khu vực Trà Báu. Trả phòng và dùng bữa trưa sớm trước khi cập bến.' }
+      ]
+    },
+    {
+      name: 'Khám phá Miền Tây Sông Nước',
+      description: 'Trải nghiệm cuộc sống dân dã của người dân Nam Bộ. Đi chợ nổi, thăm miệt vườn và thưởng thức đờn ca tài tử.',
+      location: 'Cần Thơ',
+      durationDays: 1,
+      durationNights: 0,
+      basePrice: 850000,
+      ownerId: owner2.id,
+      images: [
+        'https://images.unsplash.com/photo-1599839619722-39751411ea63?w=1200&q=80',
+        'https://images.unsplash.com/photo-1572791870574-8a7b7b3d2dd3?w=800&q=80'
+      ],
+      includes: ['Thuyền tham quan chợ nổi', 'Xe đưa đón tại Cần Thơ', 'Bữa trưa đặc sản', 'Trái cây miệt vườn'],
+      excludes: ['VAT', 'Tiền tip cho HDV'],
+      itineraries: [
+        { dayNumber: 1, title: 'Chợ nổi Cái Răng - Miệt vườn - Lò kẹo dừa', description: 'Đi thuyền sáng sớm xem cảnh buôn bán trên sông. Thăm lò kẹo dừa truyền thống. Trưa ăn tại miệt vườn, nghe đờn ca tài tử và kết thúc tour vào chiều muộn.' }
+      ]
+    }
+  ];
+
+  for (const t of toursData) {
+    const tour = await prisma.tour.create({
+      data: {
+        name: t.name,
+        description: t.description,
+        location: t.location,
+        durationDays: t.durationDays,
+        durationNights: t.durationNights,
+        basePrice: t.basePrice,
+        ownerId: t.ownerId,
+        images: t.images,
+        includes: t.includes,
+        excludes: t.excludes,
+      }
+    });
+
+    for (const it of t.itineraries) {
+      await prisma.tourItinerary.create({
+        data: {
+          tourId: tour.id,
+          dayNumber: it.dayNumber,
+          title: it.title,
+          description: it.description,
+        }
+      });
+    }
+
+    // Add 5 availabilities starting from tomorrow
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    for (let i = 0; i < 5; i++) {
+      const startDate = new Date(tomorrow);
+      startDate.setDate(tomorrow.getDate() + (i * 3)); // every 3 days
+      await prisma.tourAvailability.create({
+        data: {
+          tourId: tour.id,
+          startDate: startDate,
+          price: t.basePrice,
+          capacity: 15,
+          available: 15,
+          booked: 0
+        }
+      });
     }
   }
 
