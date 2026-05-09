@@ -6,6 +6,8 @@ import * as bcrypt from 'bcrypt';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { MailService } from '../mail/mail.service';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -111,6 +113,62 @@ export class AuthService {
         avatar: user.avatar,
       },
     };
+  }
+
+  async forgotPassword(dto: ForgotPasswordDto) {
+    const user = await this.usersService.findByEmail(dto.email);
+    if (!user) {
+      // Don't reveal if user exists for security, but we can't send email
+      throw new UnauthorizedException('Email không tồn tại trong hệ thống');
+    }
+
+    // Delete existing reset tokens for this email
+    await this.prisma.verificationToken.deleteMany({
+      where: { email: dto.email, type: 'PASSWORD_RESET' },
+    });
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+    await this.prisma.verificationToken.create({
+      data: {
+        token: otp,
+        email: dto.email,
+        type: 'PASSWORD_RESET',
+        expiresAt,
+      },
+    });
+
+    await this.mailService.sendResetPasswordEmail(user.email, user.name || 'Khách hàng', otp);
+
+    return { message: 'Mã đặt lại mật khẩu đã được gửi tới email của bạn.' };
+  }
+
+  async resetPassword(dto: ResetPasswordDto) {
+    const verificationToken = await this.prisma.verificationToken.findFirst({
+      where: {
+        email: dto.email,
+        token: dto.token,
+        type: 'PASSWORD_RESET',
+      },
+    });
+
+    if (!verificationToken || verificationToken.expiresAt < new Date()) {
+      throw new UnauthorizedException('Mã xác thực không hợp lệ hoặc đã hết hạn');
+    }
+
+    const hashedPassword = await bcrypt.hash(dto.newPassword, 10);
+
+    await this.prisma.user.update({
+      where: { email: dto.email },
+      data: { password: hashedPassword },
+    });
+
+    await this.prisma.verificationToken.delete({
+      where: { id: verificationToken.id },
+    });
+
+    return { message: 'Mật khẩu đã được cập nhật thành công.' };
   }
 
   async googleLogin(req) {

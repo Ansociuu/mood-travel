@@ -54,4 +54,28 @@ export class MailService {
       console.error('Failed to send verification email:', error);
     }
   }
+
+  async sendResetPasswordEmail(email: string, name: string, otp: string) {
+    try {
+      await this.mailerService.sendMail({
+        to: email,
+        subject: 'Yêu cầu khôi phục mật khẩu MoodTravel 🔑',
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px;">
+            <h2 style="color: #0d9488;">Khôi phục mật khẩu</h2>
+            <p>Chào ${name},</p>
+            <p>Chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản của bạn. Vui lòng sử dụng mã xác nhận dưới đây để tiếp tục:</p>
+            <div style="background: #f1f5f9; padding: 20px; border-radius: 8px; text-align: center; margin: 25px 0;">
+              <span style="font-size: 32px; font-weight: 800; color: #f43f5e; letter-spacing: 5px;">${otp}</span>
+            </div>
+            <p>Mã này sẽ hết hạn trong vòng <b>10 phút</b>. Nếu bạn không yêu cầu đổi mật khẩu, vui lòng bỏ qua email này và đổi mật khẩu hiện tại để đảm bảo an toàn.</p>
+            <hr style="margin: 30px 0; border: none; border-top: 1px solid #e2e8f0;" />
+            <p style="font-size: 12px; color: #64748b;">© 2026 MoodTravel Team. Bảo mật là ưu tiên hàng đầu của chúng tôi.</p>
+          </div>
+        `,
+      });
+    } catch (error) {
+      console.error('Failed to send reset password email:', error);
+    }
+  }
 }
