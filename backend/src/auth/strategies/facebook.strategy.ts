@@ -21,10 +21,20 @@ export class FacebookStrategy extends PassportStrategy(Strategy, 'facebook') {
     done: (err: any, user: any, info?: any) => void,
   ): Promise<any> {
     const { name, emails } = profile;
+    
+    // Kiểm tra an toàn cho TypeScript
+    const email = emails && emails.length > 0 ? emails[0].value : null;
+    const firstName = name ? name.givenName : '';
+    const lastName = name ? name.familyName : '';
+
+    if (!email) {
+      return done(new Error('Facebook account does not have an email associated'), null);
+    }
+
     const user = {
-      email: emails[0].value,
-      firstName: name.givenName,
-      lastName: name.familyName,
+      email,
+      firstName,
+      lastName,
     };
     done(null, user);
   }
