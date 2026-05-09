@@ -53,3 +53,15 @@ export const authApi = {
     body: { email, token, newPassword },
   }),
 };
+
+export const hotelsApi = {
+  getAll: (params) => {
+    const query = new URLSearchParams(params).toString();
+    return apiRequest(`/hotels${query ? `?${query}` : ''}`);
+  },
+  getById: (id) => apiRequest(`/hotels/${id}`),
+};
+
+export const roomsApi = {
+  getByHotel: (hotelId) => apiRequest(`/rooms/hotel/${hotelId}`),
+};

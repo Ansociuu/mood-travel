@@ -64,6 +64,15 @@ body {
   0%,100% { transform: scale(1); }
   50% { transform: scale(1.2); }
 }
+@keyframes pulse-skeleton {
+  0% { background-color: #e2e8f0; }
+  50% { background-color: #f1f5f9; }
+  100% { background-color: #e2e8f0; }
+}
+
+.skeleton {
+  animation: pulse-skeleton 1.5s ease-in-out infinite;
+}
 
 .hero-text { animation: fadeSlideUp 0.9s ease both; }
 .hero-text-2 { animation: fadeSlideUp 0.9s ease 0.15s both; }

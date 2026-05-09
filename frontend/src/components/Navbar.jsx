@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Plane, Menu, X } from "lucide-react";
 
-export default function Navbar() {
+export default function Navbar({ theme = "default" }) {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenu, setMobileMenu] = useState(false);
@@ -42,7 +42,8 @@ export default function Navbar() {
     transition: "all 0.4s ease",
   };
 
-  const textColor = scrolled ? "#0f172a" : "#fff";
+  const isLightTheme = theme === "light";
+  const textColor = scrolled ? "#0f172a" : (isLightTheme ? "#0f172a" : "#fff");
 
   return (
     <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 100, padding: "0 40px", height: "72px", display: "flex", alignItems: "center", justifyContent: "space-between", ...glassNav }}>
@@ -57,11 +58,11 @@ export default function Navbar() {
 
       {/* Desktop Nav */}
       <div className="nav-desktop" style={{ display: "flex", gap: "32px", alignItems: "center" }}>
-        <Link href="/" className={`${scrolled ? "nav-link" : "nav-link-light"} ${pathname === "/" ? "active" : ""}`} style={{textDecoration: "none"}}>Khám phá</Link>
-        <Link href="/tours" className={`${scrolled ? "nav-link" : "nav-link-light"} ${pathname.startsWith("/tours") ? "active" : ""}`} style={{textDecoration: "none"}}>Tour</Link>
-        <Link href="/homestays" className={`${scrolled ? "nav-link" : "nav-link-light"} ${pathname.startsWith("/homestays") ? "active" : ""}`} style={{textDecoration: "none"}}>Homestay</Link>
-        <Link href="/blog" className={`${scrolled ? "nav-link" : "nav-link-light"} ${pathname.startsWith("/blog") ? "active" : ""}`} style={{textDecoration: "none"}}>Blog</Link>
-        <Link href="/contact" className={`${scrolled ? "nav-link" : "nav-link-light"} ${pathname.startsWith("/contact") ? "active" : ""}`} style={{textDecoration: "none"}}>Liên hệ</Link>
+        <Link href="/" className={`${(scrolled || isLightTheme) ? "nav-link" : "nav-link-light"} ${pathname === "/" ? "active" : ""}`} style={{textDecoration: "none"}}>Khám phá</Link>
+        <Link href="/tours" className={`${(scrolled || isLightTheme) ? "nav-link" : "nav-link-light"} ${pathname.startsWith("/tours") ? "active" : ""}`} style={{textDecoration: "none"}}>Tour</Link>
+        <Link href="/homestays" className={`${(scrolled || isLightTheme) ? "nav-link" : "nav-link-light"} ${pathname.startsWith("/homestays") ? "active" : ""}`} style={{textDecoration: "none"}}>Homestay</Link>
+        <Link href="/blog" className={`${(scrolled || isLightTheme) ? "nav-link" : "nav-link-light"} ${pathname.startsWith("/blog") ? "active" : ""}`} style={{textDecoration: "none"}}>Blog</Link>
+        <Link href="/contact" className={`${(scrolled || isLightTheme) ? "nav-link" : "nav-link-light"} ${pathname.startsWith("/contact") ? "active" : ""}`} style={{textDecoration: "none"}}>Liên hệ</Link>
       </div>
 
       <div className="nav-auth" style={{ display: "flex", gap: "12px", alignItems: "center" }}>
@@ -77,7 +78,7 @@ export default function Navbar() {
           </>
         ) : (
           <>
-            <Link href="/login" style={{ textDecoration: "none", background: "transparent", border: scrolled ? "1px solid rgba(0,0,0,0.1)" : "1px solid rgba(255,255,255,0.3)", color: textColor, padding: "8px 20px", borderRadius: "10px", cursor: "pointer", fontSize: "13px", fontFamily: "'Inter', sans-serif", fontWeight: 600, transition: "all 0.2s" }}>Đăng nhập</Link>
+            <Link href="/login" style={{ textDecoration: "none", background: "transparent", border: (scrolled || isLightTheme) ? "1px solid rgba(0,0,0,0.1)" : "1px solid rgba(255,255,255,0.3)", color: textColor, padding: "8px 20px", borderRadius: "10px", cursor: "pointer", fontSize: "13px", fontFamily: "'Inter', sans-serif", fontWeight: 600, transition: "all 0.2s" }}>Đăng nhập</Link>
             <Link href="/register" className="shimmer-btn" style={{ textDecoration: "none", display: "inline-block", padding: "8px 20px", borderRadius: "10px", cursor: "pointer", fontSize: "13px", fontWeight: 600, border: "none", boxShadow: "0 4px 15px rgba(20,184,166,0.3)" }}>Đăng ký</Link>
           </>
         )}
