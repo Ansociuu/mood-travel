@@ -16,7 +16,7 @@ export class AuthService {
     private prisma: PrismaService,
     private jwtService: JwtService,
     private mailService: MailService,
-  ) {}
+  ) { }
 
   async register(dto: RegisterDto) {
     const existingUser = await this.usersService.findByEmail(dto.email);
@@ -25,7 +25,7 @@ export class AuthService {
     }
 
     const user = await this.usersService.create(dto);
-    
+
     // Generate 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
@@ -77,7 +77,7 @@ export class AuthService {
 
     // Send welcome email after successful verification
     this.mailService.sendWelcomeEmail(user.email, user.name || 'Khách hàng');
-    
+
     const payload = { email: user.email, sub: user.id, role: user.role };
     const { password: _, ...userWithoutPassword } = user;
 
