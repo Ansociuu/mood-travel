@@ -28,4 +28,11 @@ export class UsersService {
       where: { id },
     });
   }
+
+  async update(id: string, updateData: any): Promise<User> {
+    return this.prisma.user.update({
+      where: { id },
+      data: updateData,
+    });
+  }
 }

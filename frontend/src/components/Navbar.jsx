@@ -67,15 +67,18 @@ export default function Navbar({ theme = "default" }) {
 
       <div className="nav-auth" style={{ display: "flex", gap: "12px", alignItems: "center" }}>
         {user ? (
-          <>
-            <span style={{ color: textColor, fontSize: "14px", fontWeight: 600 }}>Chào, {user.name}</span>
+          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+            <Link href="/dashboard" style={{ display: "flex", alignItems: "center", gap: "8px", textDecoration: "none" }}>
+              <img src={user.avatar || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&q=80"} style={{ width: "32px", height: "32px", borderRadius: "50%", objectFit: "cover", border: `2px solid ${textColor}` }} />
+              <span style={{ color: textColor, fontSize: "14px", fontWeight: 600 }}>{user.name}</span>
+            </Link>
             <button 
               onClick={handleLogout}
-              style={{ textDecoration: "none", background: "transparent", border: scrolled ? "1px solid rgba(0,0,0,0.1)" : "1px solid rgba(255,255,255,0.3)", color: textColor, padding: "8px 20px", borderRadius: "10px", cursor: "pointer", fontSize: "13px", fontFamily: "'Inter', sans-serif", fontWeight: 600, transition: "all 0.2s" }}
+              style={{ textDecoration: "none", background: "transparent", border: scrolled ? "1px solid rgba(0,0,0,0.1)" : "1px solid rgba(255,255,255,0.3)", color: textColor, padding: "8px 16px", borderRadius: "10px", cursor: "pointer", fontSize: "13px", fontFamily: "'Inter', sans-serif", fontWeight: 600, transition: "all 0.2s" }}
             >
-              Đăng xuất
+              Thoát
             </button>
-          </>
+          </div>
         ) : (
           <>
             <Link href="/login" style={{ textDecoration: "none", background: "transparent", border: (scrolled || isLightTheme) ? "1px solid rgba(0,0,0,0.1)" : "1px solid rgba(255,255,255,0.3)", color: textColor, padding: "8px 20px", borderRadius: "10px", cursor: "pointer", fontSize: "13px", fontFamily: "'Inter', sans-serif", fontWeight: 600, transition: "all 0.2s" }}>Đăng nhập</Link>

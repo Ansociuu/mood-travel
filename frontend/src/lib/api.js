@@ -3,10 +3,15 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
 export async function apiRequest(endpoint, options = {}) {
   const { method = 'GET', body, headers = {}, ...rest } = options;
 
+  const isFormData = typeof window !== 'undefined' && body instanceof FormData;
+  
   const defaultHeaders = {
-    'Content-Type': 'application/json',
     ...headers,
   };
+
+  if (!isFormData) {
+    defaultHeaders['Content-Type'] = 'application/json';
+  }
 
   // Add token if exists
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
@@ -17,7 +22,7 @@ export async function apiRequest(endpoint, options = {}) {
   const response = await fetch(`${API_URL}${endpoint}`, {
     method,
     headers: defaultHeaders,
-    body: body ? JSON.stringify(body) : undefined,
+    body: body ? (isFormData ? body : JSON.stringify(body)) : undefined,
     ...rest,
   });
 
@@ -52,6 +57,10 @@ export const authApi = {
     method: 'POST',
     body: { email, token, newPassword },
   }),
+  updateMe: (userData) => apiRequest('/users/me', {
+    method: 'PATCH',
+    body: userData,
+  }),
 };
 
 export const hotelsApi = {
@@ -81,6 +90,9 @@ export const bookingsApi = {
   }),
   getMyBookings: () => apiRequest('/bookings/me'),
   getById: (id) => apiRequest(`/bookings/${id}`),
+  cancel: (id) => apiRequest(`/bookings/${id}/cancel`, {
+    method: 'PATCH',
+  }),
 };
 
 export const paymentsApi = {
@@ -89,4 +101,15 @@ export const paymentsApi = {
     body: { bookingId },
   }),
   verifyVNPayReturn: (queryString) => apiRequest(`/payments/vnpay/vnpay_return?${queryString}`),
+};
+
+export const uploadApi = {
+  uploadImage: (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return apiRequest('/upload/image', {
+      method: 'POST',
+      body: formData,
+    });
+  },
 };

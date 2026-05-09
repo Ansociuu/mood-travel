@@ -91,4 +91,25 @@ export class BookingsService {
 
     return booking;
   }
+
+  async cancel(id: string, userId: string) {
+    const booking = await this.prisma.booking.findUnique({ where: { id } });
+    
+    if (!booking) {
+      throw new NotFoundException('Booking not found');
+    }
+    
+    if (booking.userId !== userId) {
+      throw new NotFoundException('Booking not found');
+    }
+
+    if (booking.status !== 'PENDING') {
+      throw new Error('Only PENDING bookings can be cancelled');
+    }
+
+    return this.prisma.booking.update({
+      where: { id },
+      data: { status: 'CANCELLED' }
+    });
+  }
 }
