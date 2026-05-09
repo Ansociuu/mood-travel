@@ -6,7 +6,7 @@ import { MailService } from './mail.service';
 @Module({
   imports: [
     MailerModule.forRoot({
-      transport: {
+      transport: ({
         host: process.env.MAIL_HOST || 'smtp.ethereal.email',
         port: Number(process.env.MAIL_PORT) || 587,
         secure: false,
@@ -18,9 +18,8 @@ import { MailService } from './mail.service';
         tls: {
           rejectUnauthorized: false,
         },
-        // Bắt buộc Node.js sử dụng IPv4 thay vì IPv6 để tránh lỗi ENETUNREACH
         family: 4,
-      },
+      } as any),
       defaults: {
         from: '"MoodTravel" <noreply@moodtravel.com>',
       },
