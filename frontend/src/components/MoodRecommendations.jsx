@@ -18,7 +18,8 @@ export default function MoodRecommendations({ mood }) {
     const fetchRecommendations = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`http://localhost:3002/recommendations/mood?mood=${mood}`);
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL || "https://mood-travel-backend.onrender.com";
+        const response = await fetch(`${baseUrl}/recommendations/mood?mood=${mood}`);
         const data = await response.json();
         setRecommendations(data);
       } catch (error) {

@@ -13,6 +13,12 @@ export class HotelsController {
     return this.hotelsService.create(createHotelDto, req.user.sub);
   }
 
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  findMyHotels(@Request() req) {
+    return this.hotelsService.findAll({ ownerId: req.user.sub });
+  }
+
   @Get()
   findAll(@Query() query: any) {
     return this.hotelsService.findAll(query);

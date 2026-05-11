@@ -62,6 +62,18 @@ export const hotelsApi = {
     return apiRequest(`/hotels${query ? `?${query}` : ''}`);
   },
   getById: (id) => apiRequest(`/hotels/${id}`),
+  getMyHotels: () => apiRequest('/hotels/me'),
+  create: (data) => apiRequest('/hotels', {
+    method: 'POST',
+    body: data,
+  }),
+  update: (id, data) => apiRequest(`/hotels/${id}`, {
+    method: 'PATCH',
+    body: data,
+  }),
+  remove: (id) => apiRequest(`/hotels/${id}`, {
+    method: 'DELETE',
+  }),
 };
 
 export const toursApi = {
@@ -70,6 +82,18 @@ export const toursApi = {
     return apiRequest(`/tours${query ? `?${query}` : ''}`);
   },
   getById: (id) => apiRequest(`/tours/${id}`),
+  getMyTours: () => apiRequest('/tours/me'),
+  create: (data) => apiRequest('/tours', {
+    method: 'POST',
+    body: data,
+  }),
+  update: (id, data) => apiRequest(`/tours/${id}`, {
+    method: 'PATCH',
+    body: data,
+  }),
+  remove: (id) => apiRequest(`/tours/${id}`, {
+    method: 'DELETE',
+  }),
 };
 
 export const bookingsApi = {

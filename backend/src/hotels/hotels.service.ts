@@ -29,7 +29,7 @@ export class HotelsService {
   }
 
   async findAll(query: any) {
-    const { city, type } = query;
+    const { city, type, ownerId } = query;
     const where: any = {};
     
     if (city) {
@@ -37,6 +37,9 @@ export class HotelsService {
     }
     if (type) {
       where.type = type;
+    }
+    if (ownerId) {
+      where.ownerId = ownerId;
     }
 
     return this.prisma.hotel.findMany({
@@ -100,9 +103,25 @@ export class HotelsService {
       throw new NotFoundException('Bạn không có quyền chỉnh sửa cơ sở này');
     }
 
+    const { rooms, amenities, ...hotelData } = updateData;
+
     return this.prisma.hotel.update({
       where: { id },
-      data: updateData,
+      data: {
+        ...hotelData,
+        rooms: rooms ? {
+          deleteMany: {},
+          create: rooms.map(room => ({
+            name: room.name,
+            description: room.description,
+            type: room.type,
+            basePrice: room.basePrice,
+            capacity: room.capacity,
+            totalRooms: room.totalRooms,
+            images: room.images
+          }))
+        } : undefined,
+      },
     });
   }
 

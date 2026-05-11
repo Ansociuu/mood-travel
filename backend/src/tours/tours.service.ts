@@ -6,7 +6,7 @@ export class ToursService {
   constructor(private prisma: PrismaService) {}
 
   async findAll(query: any) {
-    const { location, maxPrice, minDuration } = query;
+    const { location, maxPrice, minDuration, ownerId } = query;
     const where: any = {};
     
     if (location) {
@@ -17,6 +17,9 @@ export class ToursService {
     }
     if (minDuration) {
       where.durationDays = { gte: parseInt(minDuration) };
+    }
+    if (ownerId) {
+      where.ownerId = ownerId;
     }
 
     const tours = await this.prisma.tour.findMany({
@@ -75,7 +78,6 @@ export class ToursService {
       throw new NotFoundException('Không tìm thấy tour này');
     }
     
-    // Calculate average rating
     const avgRating = tour.reviews.length > 0 
       ? tour.reviews.reduce((acc, curr) => acc + curr.rating, 0) / tour.reviews.length 
       : 0;
@@ -85,5 +87,74 @@ export class ToursService {
       rating: parseFloat(avgRating.toFixed(1)),
       reviewCount: tour.reviews.length
     };
+  }
+
+  async create(data: any, ownerId: string) {
+    const { itineraries, availability, ...tourData } = data;
+    
+    return this.prisma.tour.create({
+      data: {
+        ...tourData,
+        ownerId,
+        itineraries: itineraries ? {
+          create: itineraries.map(item => ({
+            dayNumber: item.dayNumber,
+            title: item.title,
+            description: item.description
+          }))
+        } : undefined,
+        availability: availability ? {
+          create: availability.map(item => ({
+            startDate: new Date(item.startDate),
+            price: item.price,
+            capacity: item.capacity,
+            available: item.capacity
+          }))
+        } : undefined
+      }
+    });
+  }
+
+  async update(id: string, data: any, ownerId: string) {
+    const tour = await this.prisma.tour.findUnique({ where: { id } });
+    if (!tour || tour.ownerId !== ownerId) {
+      throw new NotFoundException('Bạn không có quyền chỉnh sửa tour này');
+    }
+
+    const { itineraries, availability, ...tourData } = data;
+
+    // Handle nested updates by deleting and recreating
+    // (This is a simpler approach for nested relations in Prisma)
+    return this.prisma.tour.update({
+      where: { id },
+      data: {
+        ...tourData,
+        itineraries: itineraries ? {
+          deleteMany: {},
+          create: itineraries.map(item => ({
+            dayNumber: item.dayNumber,
+            title: item.title,
+            description: item.description
+          }))
+        } : undefined,
+        availability: availability ? {
+          deleteMany: {},
+          create: availability.map(item => ({
+            startDate: new Date(item.startDate),
+            price: item.price,
+            capacity: item.capacity,
+            available: item.capacity
+          }))
+        } : undefined
+      },
+    });
+  }
+
+  async remove(id: string, ownerId: string) {
+    const tour = await this.prisma.tour.findUnique({ where: { id } });
+    if (!tour || tour.ownerId !== ownerId) {
+      throw new NotFoundException('Bạn không có quyền xóa tour này');
+    }
+    return this.prisma.tour.delete({ where: { id } });
   }
 }
