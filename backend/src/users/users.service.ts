@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma, User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
@@ -38,6 +38,9 @@ export class UsersService {
 
   async changePassword(userId: string, data: any) {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      throw new BadRequestException('Người dùng không tồn tại');
+    }
     const isMatch = await bcrypt.compare(data.oldPassword, user.password);
     if (!isMatch) {
       throw new BadRequestException('Mật khẩu cũ không chính xác');

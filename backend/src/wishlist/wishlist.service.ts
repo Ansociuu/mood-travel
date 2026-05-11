@@ -12,18 +12,16 @@ export class WishlistService {
       throw new BadRequestException('Either hotelId or tourId must be provided');
     }
 
-    const where = {
-      userId_hotelId_tourId: {
+    const existing = await this.prisma.wishlist.findFirst({
+      where: {
         userId,
         hotelId: hotelId || null,
         tourId: tourId || null,
-      },
-    };
-
-    const existing = await this.prisma.wishlist.findUnique({ where });
+      }
+    });
 
     if (existing) {
-      await this.prisma.wishlist.delete({ where });
+      await this.prisma.wishlist.delete({ where: { id: existing.id } });
       return { status: 'unliked' };
     } else {
       await this.prisma.wishlist.create({
