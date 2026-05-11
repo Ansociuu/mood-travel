@@ -29,7 +29,7 @@ export default function ContactPage() {
       <div style={{ height: "72px" }}></div>
 
       <main style={{ maxWidth: "1200px", margin: "0 auto", padding: "64px 20px 80px" }}>
-        
+
         {/* HERO SECTION */}
         <div style={{ textAlign: "center", marginBottom: "80px" }}>
           <div style={{ fontSize: "14px", color: "#0d9488", fontWeight: 800, letterSpacing: "2px", textTransform: "uppercase", marginBottom: "16px" }}>HỖ TRỢ KHÁCH HÀNG 24/7</div>
@@ -43,12 +43,12 @@ export default function ContactPage() {
 
         {/* 2-COL LAYOUT */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "64px", alignItems: "start" }} className="tours-layout-grid">
-          
+
           {/* LEFT: FORM */}
           <div style={{ background: "#f8fafc", padding: "40px", borderRadius: "24px", border: "1px solid rgba(0,0,0,0.05)" }}>
             <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: "28px", fontWeight: 800, color: "#0f172a", marginBottom: "8px" }}>Gửi lời nhắn</h2>
             <p style={{ fontSize: "15px", color: "#64748b", marginBottom: "32px" }}>Chúng tôi sẽ phản hồi bạn trong vòng 2 giờ làm việc.</p>
-            
+
             <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
                 <div>
@@ -60,7 +60,7 @@ export default function ContactPage() {
                   <input type="tel" placeholder="0912 345 678" style={inputStyle} required />
                 </div>
               </div>
-              
+
               <div>
                 <label style={labelStyle}>Email liên hệ</label>
                 <input type="email" placeholder="example@email.com" style={inputStyle} required />
@@ -98,7 +98,7 @@ export default function ContactPage() {
 
           {/* RIGHT: INFO & MAP */}
           <div style={{ display: "flex", flexDirection: "column", gap: "40px" }}>
-            
+
             {/* INFO BLOCKS */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px" }}>
               <div style={{ display: "flex", gap: "16px" }}>
@@ -107,7 +107,7 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <h3 style={{ fontSize: "16px", fontWeight: 800, color: "#0f172a", marginBottom: "8px" }}>Trụ sở chính</h3>
-                  <p style={{ fontSize: "15px", color: "#475569", lineHeight: 1.6 }}>Tầng 15, Tòa nhà Landmark 81<br />Bình Thạnh, TP. Hồ Chí Minh</p>
+                  <p style={{ fontSize: "15px", color: "#475569", lineHeight: 1.6 }}>Phenikaa University<br />Yên Nghĩa, Hà Đông, Hà Nội</p>
                 </div>
               </div>
 
@@ -144,13 +144,13 @@ export default function ContactPage() {
 
             {/* MAP IFRAME */}
             <div style={{ width: "100%", height: "350px", borderRadius: "24px", overflow: "hidden", border: "1px solid rgba(0,0,0,0.1)", boxShadow: "0 10px 30px rgba(0,0,0,0.05)" }}>
-              <iframe 
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.167265538965!2d106.71937401533423!3d10.79848529230588!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x317527c2f8f30911%3A0x36ac5073f8c91acd!2sLandmark%2081!5e0!3m2!1svi!2s!4v1655866184920!5m2!1svi!2s" 
-                width="100%" 
-                height="100%" 
-                style={{ border: 0 }} 
-                allowFullScreen="" 
-                loading="lazy" 
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3725.748538458386!2d105.74611147504201!3d20.962611180670255!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x313452efff394ce3%3A0x391a39d4325be464!2sPhenikaa%20University!5e0!3m2!1sen!2sus!4v1778514992297!5m2!1sen!2sus"
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen=""
+                loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
               ></iframe>
             </div>
