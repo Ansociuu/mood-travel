@@ -74,6 +74,29 @@ export class BookingsService {
     });
   }
 
+  async findOwnerBookings(ownerId: string, role: string = 'USER') {
+    const where: any = {};
+    
+    if (role !== 'ADMIN') {
+      where.OR = [
+        { hotel: { ownerId: ownerId } },
+        { tour: { ownerId: ownerId } }
+      ];
+    }
+
+    return this.prisma.booking.findMany({
+      where,
+      include: {
+        hotel: true,
+        tour: true,
+        user: { select: { name: true, email: true, avatar: true } },
+        bookingRooms: { include: { room: true } },
+        bookingTours: { include: { tour: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
   async findOne(id: string) {
     const booking = await this.prisma.booking.findUnique({
       where: { id },
@@ -90,6 +113,35 @@ export class BookingsService {
     }
 
     return booking;
+  }
+
+  async updateStatus(id: string, status: string, ownerId: string, role: string = 'USER') {
+    const booking = await this.prisma.booking.findUnique({
+      where: { id },
+      include: { 
+        hotel: true, 
+        tour: true 
+      }
+    });
+
+    if (!booking) {
+      throw new NotFoundException('Đơn hàng không tồn tại');
+    }
+
+    // Check if the owner owns the hotel or tour OR is ADMIN
+    const isOwner = (booking.hotel && booking.hotel.ownerId === ownerId) || 
+                    (booking.tour && booking.tour.ownerId === ownerId);
+    
+    const canUpdate = isOwner || role === 'ADMIN';
+
+    if (!canUpdate) {
+      throw new NotFoundException('Bạn không có quyền quản lý đơn hàng này');
+    }
+
+    return this.prisma.booking.update({
+      where: { id },
+      data: { status: status as any }
+    });
   }
 
   async cancel(id: string, userId: string) {

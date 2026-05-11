@@ -9,13 +9,19 @@ export class ToursController {
   @Post()
   @UseGuards(JwtAuthGuard)
   create(@Body() data: any, @Request() req) {
-    return this.toursService.create(data, req.user.sub);
+    const userId = req.user.id || req.user.sub;
+    return this.toursService.create(data, userId);
   }
 
   @Get('me')
   @UseGuards(JwtAuthGuard)
   findMyTours(@Request() req) {
-    return this.toursService.findAll({ ownerId: req.user.sub });
+    const userId = req.user.id || req.user.sub;
+    const filter: any = {};
+    if (req.user.role !== 'ADMIN') {
+      filter.ownerId = userId;
+    }
+    return this.toursService.findAll(filter);
   }
 
   @Get()
@@ -31,12 +37,14 @@ export class ToursController {
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
   update(@Param('id') id: string, @Body() data: any, @Request() req) {
-    return this.toursService.update(id, data, req.user.sub);
+    const userId = req.user.id || req.user.sub;
+    return this.toursService.update(id, data, { id: userId, role: req.user.role });
   }
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
   remove(@Param('id') id: string, @Request() req) {
-    return this.toursService.remove(id, req.user.sub);
+    const userId = req.user.id || req.user.sub;
+    return this.toursService.remove(id, { id: userId, role: req.user.role });
   }
 }

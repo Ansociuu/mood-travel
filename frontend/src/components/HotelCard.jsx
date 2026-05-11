@@ -87,6 +87,9 @@ export default function HotelCard({ hotel, isWishlist, toggleWishlist }) {
         </div>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: "20px", borderTop: "1px solid rgba(0,0,0,0.05)", gap: "8px" }}>
           <div style={{ display: "flex", alignItems: "baseline", flexWrap: "wrap", gap: "4px" }}>
+            {hotel.priceLabel && (
+              <span style={{ fontSize: "11px", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase" }}>{hotel.priceLabel}</span>
+            )}
             <span style={{ fontSize: "18px", fontWeight: 800, color: "#d97706" }}>₫{Number(hotel.price).toLocaleString('en-US')}</span>
             <span style={{ fontSize: "12px", color: "#94a3b8", fontWeight: 500 }}>/ đêm</span>
           </div>

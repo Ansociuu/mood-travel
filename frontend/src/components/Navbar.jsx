@@ -68,6 +68,11 @@ export default function Navbar({ theme = "default" }) {
       <div className="nav-auth" style={{ display: "flex", gap: "12px", alignItems: "center" }}>
         {user ? (
           <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+            {(user.role === 'ADMIN' || user.role === 'OWNER') && (
+              <Link href="/admin" className={(scrolled || isLightTheme) ? "nav-link" : "nav-link-light"} style={{ textDecoration: "none", color: "#14b8a6", fontWeight: 800 }}>
+                Quản trị
+              </Link>
+            )}
             <Link href="/dashboard" style={{ display: "flex", alignItems: "center", gap: "8px", textDecoration: "none" }}>
               <img src={user.avatar || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&q=80"} style={{ width: "32px", height: "32px", borderRadius: "50%", objectFit: "cover", border: `2px solid ${textColor}` }} />
               <span style={{ color: textColor, fontSize: "14px", fontWeight: 600 }}>{user.name}</span>

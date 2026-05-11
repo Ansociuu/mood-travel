@@ -71,8 +71,20 @@ export const hotelsApi = {
     method: 'PATCH',
     body: data,
   }),
+  updateInventory: (id, data) => apiRequest(`/hotels/${id}/inventory`, {
+    method: 'POST',
+    body: data,
+  }),
   remove: (id) => apiRequest(`/hotels/${id}`, {
     method: 'DELETE',
+  }),
+  getAvailability: (id, params) => {
+    const query = new URLSearchParams(params).toString();
+    return apiRequest(`/hotels/${id}/availability?${query}`);
+  },
+  updateAvailability: (id, data) => apiRequest(`/hotels/${id}/availability`, {
+    method: 'PATCH',
+    body: data,
   }),
 };
 
@@ -102,8 +114,35 @@ export const bookingsApi = {
     body: bookingData,
   }),
   getMyBookings: () => apiRequest('/bookings/me'),
+  getOwnerBookings: () => apiRequest('/bookings/owner'),
+  updateStatus: (id, status) => apiRequest(`/bookings/${id}/status`, {
+    method: 'PATCH',
+    body: { status },
+  }),
   cancel: (id) => apiRequest(`/bookings/${id}/cancel`, {
     method: 'PATCH',
+  }),
+};
+
+export const adminApi = {
+  getStats: () => apiRequest('/admin/stats'),
+  getFinance: (params) => {
+    const query = new URLSearchParams(params).toString();
+    return apiRequest(`/admin/finance?${query}`);
+  },
+};
+
+export const usersApi = {
+  getAllUsers: () => apiRequest('/users'),
+  updateRole: (id, role) => apiRequest(`/users/${id}/role`, {
+    method: 'PATCH',
+    body: { role },
+  }),
+  toggleVerify: (id) => apiRequest(`/users/${id}/verify`, {
+    method: 'PATCH',
+  }),
+  deleteUser: (id) => apiRequest(`/users/${id}`, {
+    method: 'DELETE',
   }),
 };
 
@@ -113,8 +152,29 @@ export const reviewsApi = {
     body: reviewData,
   }),
   getMyReviews: () => apiRequest('/reviews/me'),
-  getByHotel: (id) => apiRequest(`/reviews/hotel/${id}`),
-  getByTour: (id) => apiRequest(`/reviews/tour/${id}`),
+  getOwnerReviews: () => apiRequest('/reviews/owner'),
+  reply: (id, reply) => apiRequest(`/reviews/${id}/reply`, {
+    method: 'POST',
+    body: { reply },
+  }),
+  getByHotel: (hotelId) => apiRequest(`/reviews/hotel/${hotelId}`),
+  getByTour: (tourId) => apiRequest(`/reviews/tour/${tourId}`),
+};
+
+export const couponsApi = {
+  getAll: () => apiRequest('/coupons'),
+  validate: (code) => apiRequest(`/coupons/validate?code=${code}`),
+  create: (data) => apiRequest('/coupons', {
+    method: 'POST',
+    body: data,
+  }),
+  update: (id, data) => apiRequest(`/coupons/${id}`, {
+    method: 'PATCH',
+    body: data,
+  }),
+  remove: (id) => apiRequest(`/coupons/${id}`, {
+    method: 'DELETE',
+  }),
 };
 
 export const wishlistApi = {

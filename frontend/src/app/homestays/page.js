@@ -38,22 +38,29 @@ export default function HomestaysPage() {
     const fetchHomestays = async () => {
       try {
         const data = await hotelsApi.getAll();
-        const formatted = data.map(h => ({
-          id: h.id,
-          name: h.name,
-          location: h.city,
-          type: h.type,
-          price: h.rooms?.[0]?.basePrice?.toString() || "0",
-          per: "đêm",
-          rating: h.rating,
-          beds: h.rooms?.[0]?.capacity || 2,
-          baths: 1,
-          guests: h.rooms?.[0]?.capacity || 2,
-          lat: h.lat,
-          lng: h.lng,
-          amenities: h.amenities?.map(a => a.amenity.name) || [],
-          images: h.images?.length > 0 ? h.images : ["https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?w=500&q=80"]
-        }));
+        const formatted = data.map(h => {
+          const prices = h.rooms?.map(r => Number(r.basePrice)).filter(p => p > 0) || [];
+          const minPrice = prices.length > 0 ? Math.min(...prices) : 0;
+          const capacities = h.rooms?.map(r => Number(r.capacity)).filter(c => c > 0) || [];
+          const maxGuests = capacities.length > 0 ? Math.max(...capacities) : 2;
+          return {
+            id: h.id,
+            name: h.name,
+            location: h.city,
+            type: h.type,
+            price: minPrice.toString(),
+            priceLabel: prices.length > 1 ? "Từ" : "",
+            per: "đêm",
+            rating: h.rating,
+            beds: h.rooms?.length || 1,
+            baths: 1,
+            guests: maxGuests,
+            lat: h.lat,
+            lng: h.lng,
+            amenities: h.amenities?.map(a => a.amenity?.name || a.label || a) || [],
+            images: h.images?.length > 0 ? h.images : ["https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?w=500&q=80"]
+          };
+        });
         setHomestays(formatted);
       } catch (error) {
         console.error("Failed to fetch hotels:", error);

@@ -5,17 +5,25 @@ import {
   ArrowUpRight, ArrowDownRight, Calendar,
   MoreVertical, ExternalLink
 } from "lucide-react";
-import { authApi } from "@/lib/api";
+import { authApi, adminApi } from "@/lib/api";
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState({
-    revenue: 125000000,
-    bookings: 48,
-    products: 12,
-    rating: 4.8,
-    revenueGrowth: 12.5,
-    bookingsGrowth: 8.2
-  });
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const data = await adminApi.getStats();
+        setStats(data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStats();
+  }, []);
 
   const StatCard = ({ label, value, icon: Icon, trend, growth, color }) => (
     <div style={{ background: "#fff", padding: "24px", borderRadius: "24px", border: "1px solid rgba(0,0,0,0.05)", boxShadow: "0 4px 20px rgba(0,0,0,0.02)" }}>
@@ -34,6 +42,9 @@ export default function AdminDashboard() {
       </div>
     </div>
   );
+
+  if (loading) return <div style={{ padding: "40px", textAlign: "center" }}>Đang tải dữ liệu báo cáo...</div>;
+  if (!stats) return <div style={{ padding: "40px", textAlign: "center", color: "#ef4444" }}>Lỗi tải dữ liệu.</div>;
 
   return (
     <div>
@@ -56,7 +67,7 @@ export default function AdminDashboard() {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "24px", marginBottom: "40px" }}>
         <StatCard 
           label="Tổng doanh thu" 
-          value={`₫${(stats.revenue).toLocaleString()}`} 
+          value={`₫${Number(stats.revenue).toLocaleString()}`} 
           icon={TrendingUp} 
           trend="up" 
           growth={stats.revenueGrowth} 
@@ -109,50 +120,38 @@ export default function AdminDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <tr key={i} style={{ borderBottom: "1px solid #f8fafc" }}>
+                {stats.recentBookings.map((b) => (
+                  <tr key={b.id} style={{ borderBottom: "1px solid #f8fafc" }}>
                     <td style={{ padding: "16px 0" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                        <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: "#f1f5f9", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12px", fontWeight: 700 }}>ND</div>
-                        <div style={{ fontSize: "14px", fontWeight: 600 }}>Nguyễn Văn A</div>
+                        <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: "#f1f5f9", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12px", fontWeight: 700 }}>
+                          {b.guestName.charAt(0)}
+                        </div>
+                        <div style={{ fontSize: "14px", fontWeight: 600 }}>{b.guestName}</div>
                       </div>
                     </td>
-                    <td style={{ padding: "16px 0", fontSize: "14px", fontWeight: 500 }}>Sapa Tour 3N2Đ</td>
-                    <td style={{ padding: "16px 0", fontSize: "14px", color: "#64748b" }}>12/05/2026</td>
-                    <td style={{ padding: "16px 0", fontSize: "14px", fontWeight: 700 }}>₫2,500,000</td>
+                    <td style={{ padding: "16px 0", fontSize: "14px", fontWeight: 500 }}>{b.productName}</td>
+                    <td style={{ padding: "16px 0", fontSize: "14px", color: "#64748b" }}>{new Date(b.date).toLocaleDateString('vi-VN')}</td>
+                    <td style={{ padding: "16px 0", fontSize: "14px", fontWeight: 700 }}>₫{Number(b.amount).toLocaleString()}</td>
                     <td style={{ padding: "16px 0" }}>
-                      <span style={{ fontSize: "11px", fontWeight: 800, padding: "4px 8px", borderRadius: "6px", background: "#f0fdf4", color: "#10b981" }}>HOÀN TẤT</span>
+                      <span style={{ fontSize: "11px", fontWeight: 800, padding: "4px 8px", borderRadius: "6px", background: "#f0fdf4", color: "#10b981" }}>{b.status}</span>
                     </td>
                   </tr>
                 ))}
+                {stats.recentBookings.length === 0 && (
+                  <tr><td colSpan="5" style={{ padding: "30px", textAlign: "center", color: "#94a3b8" }}>Chưa có hoạt động nào.</td></tr>
+                )}
               </tbody>
             </table>
           </div>
         </div>
 
-        {/* TOP PRODUCTS */}
+        {/* TOP PRODUCTS (STILL MOCK FOR NOW) */}
         <div style={{ background: "#fff", borderRadius: "24px", padding: "32px", border: "1px solid rgba(0,0,0,0.05)" }}>
-          <h3 style={{ fontSize: "18px", fontWeight: 800, color: "#0f172a", marginBottom: "24px" }}>Sản phẩm bán chạy</h3>
+          <h3 style={{ fontSize: "18px", fontWeight: 800, color: "#0f172a", marginBottom: "24px" }}>Thông báo & Tin nhắn</h3>
           <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-            {[1, 2, 3].map((i) => (
-              <div key={i} style={{ display: "flex", gap: "16px", alignItems: "center" }}>
-                <img src={`https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=100&q=80`} style={{ width: "56px", height: "56px", borderRadius: "12px", objectFit: "cover" }} />
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: "14px", fontWeight: 700, marginBottom: "4px" }}>Homestay Rừng Thông</div>
-                  <div style={{ fontSize: "12px", color: "#64748b" }}>12 đơn đặt • ₫18,000,000</div>
-                </div>
-                <div style={{ textAlign: "right" }}>
-                  <div style={{ fontSize: "14px", fontWeight: 800, color: "#0d9488" }}>4.9</div>
-                  <div style={{ display: "flex", gap: "1px" }}>
-                    <Star size={10} fill="#f59e0b" color="#f59e0b" />
-                  </div>
-                </div>
-              </div>
-            ))}
+            <p style={{ fontSize: "14px", color: "#64748b", fontStyle: "italic" }}>Không có thông báo mới nào.</p>
           </div>
-          <button style={{ width: "100%", marginTop: "32px", padding: "12px", borderRadius: "12px", border: "1px solid #e2e8f0", background: "none", color: "#64748b", fontSize: "14px", fontWeight: 700, cursor: "pointer" }}>
-            Xem báo cáo chi tiết
-          </button>
         </div>
       </div>
     </div>

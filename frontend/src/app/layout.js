@@ -1,5 +1,8 @@
+import { Inter } from "next/font/google";
 import "./globals.css";
 import HydrationHandler from "@/components/HydrationHandler";
+
+const inter = Inter({ subsets: ["latin", "vietnamese"] });
 
 export const metadata = {
   title: "VietJourney - Đặt Tour & Homestay Cao Cấp",
@@ -12,7 +15,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="vi" suppressHydrationWarning>
-      <body suppressHydrationWarning>
+      <body className={inter.className} suppressHydrationWarning>
         <HydrationHandler>{children}</HydrationHandler>
       </body>
     </html>

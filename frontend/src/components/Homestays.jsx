@@ -1,16 +1,47 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { homestays } from "../data/mockData";
+import { hotelsApi } from "../lib/api";
 import { Heart, MapPin, Bed, Bath, Users, Star } from "lucide-react";
 
 export default function Homestays() {
   const router = useRouter();
   const [visibleCards, setVisibleCards] = useState({});
   const [wishlist, setWishlist] = useState({});
+  const [homestays, setHomestays] = useState([]);
+  const [loading, setLoading] = useState(true);
   const cardRefs = useRef({});
 
   useEffect(() => {
+    const fetchHotels = async () => {
+      try {
+        const data = await hotelsApi.getAll();
+        // Format like in HomestaysPage
+        const formatted = data.map(h => {
+          const prices = h.rooms?.map(r => Number(r.basePrice)).filter(p => p > 0) || [];
+          const minPrice = prices.length > 0 ? Math.min(...prices) : 0;
+          return {
+            id: h.id,
+            name: h.name,
+            location: h.city,
+            price: minPrice.toLocaleString('vi-VN'),
+            rating: h.rating,
+            beds: h.rooms?.length || 1,
+            baths: 1,
+            guests: h.rooms?.[0]?.capacity || 2,
+            img: h.images?.[0] || "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800",
+            per: "đêm"
+          };
+        });
+        setHomestays(formatted.slice(0, 3)); // Only show top 3 on home
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchHotels();
+
     const observer = new IntersectionObserver(
       (entries) => entries.forEach(e => {
         if (e.isIntersecting) setVisibleCards(p => ({ ...p, [e.target.dataset.id]: true }));
@@ -19,7 +50,7 @@ export default function Homestays() {
     );
     Object.values(cardRefs.current).forEach(el => el && observer.observe(el));
     return () => observer.disconnect();
-  }, []);
+  }, [homestays]);
 
   const toggleWishlist = (id) => setWishlist(p => ({ ...p, [id]: !p[id] }));
 
@@ -40,7 +71,11 @@ export default function Homestays() {
           </h2>
         </div>
         <div className="home-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "24px" }}>
-          {homestays.map((h, i) => (
+          {loading ? (
+            Array(3).fill(0).map((_, i) => (
+              <div key={i} style={{ height: "400px", background: "#f1f5f9", borderRadius: "24px", animation: "pulse 1.5s infinite" }} />
+            ))
+          ) : homestays.map((h, i) => (
             <div key={h.id} ref={el => cardRefs.current[`home-${h.id}`] = el} data-id={`home-${h.id}`} className={`card-reveal glass-hover ${visibleCards[`home-${h.id}`] ? "visible" : ""}`} style={{ ...glassCard, overflow: "hidden", cursor: "pointer", transitionDelay: `${i * 0.1}s` }} onClick={() => router.push(`/homestays/${h.id}`)}>
               <div style={{ position: "relative", height: "240px", overflow: "hidden" }}>
                 <img src={h.img} alt={h.name} className="card-img" />

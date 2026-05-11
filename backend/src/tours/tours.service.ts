@@ -1,5 +1,48 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { IsString, IsNotEmpty, IsOptional, IsArray, IsNumber } from 'class-validator';
 import { PrismaService } from '../prisma/prisma.service';
+
+export class CreateTourDto {
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+
+  @IsString()
+  @IsNotEmpty()
+  description: string;
+
+  @IsString()
+  @IsNotEmpty()
+  location: string;
+
+  @IsNumber()
+  @IsNotEmpty()
+  durationDays: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  durationNights: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  basePrice: number;
+
+  @IsArray()
+  @IsOptional()
+  images?: string[];
+
+  @IsArray()
+  @IsOptional()
+  moodTags?: string[];
+
+  @IsArray()
+  @IsOptional()
+  itineraries?: any[];
+
+  @IsArray()
+  @IsOptional()
+  availability?: any[];
+}
 
 @Injectable()
 export class ToursService {
@@ -100,7 +143,8 @@ export class ToursService {
           create: itineraries.map(item => ({
             dayNumber: item.dayNumber,
             title: item.title,
-            description: item.description
+            description: item.description,
+            image: item.image
           }))
         } : undefined,
         availability: availability ? {
@@ -115,13 +159,30 @@ export class ToursService {
     });
   }
 
-  async update(id: string, data: any, ownerId: string) {
+  async update(id: string, data: any, user: { id: string; role: string }) {
     const tour = await this.prisma.tour.findUnique({ where: { id } });
-    if (!tour || tour.ownerId !== ownerId) {
-      throw new NotFoundException('Bạn không có quyền chỉnh sửa tour này');
+    if (!tour) throw new NotFoundException('Không tìm thấy tour này');
+    
+    if (tour.ownerId !== user.id && user.role !== 'ADMIN') {
+      throw new ForbiddenException('Bạn không có quyền chỉnh sửa tour này');
     }
 
-    const { itineraries, availability, ...tourData } = data;
+    const { 
+      id: _id, 
+      ownerId: _ownerId, 
+      createdAt: _createdAt, 
+      updatedAt: _updatedAt, 
+      owner: _owner, 
+      reviews: _reviews, 
+      rating: _rating,
+      reviewCount: _reviewCount,
+      wishlists: _wishlists,
+      bookingTours: _bookingTours,
+      bookings: _bookings,
+      itineraries, 
+      availability, 
+      ...tourData 
+    } = data;
 
     // Handle nested updates by deleting and recreating
     // (This is a simpler approach for nested relations in Prisma)
@@ -134,7 +195,8 @@ export class ToursService {
           create: itineraries.map(item => ({
             dayNumber: item.dayNumber,
             title: item.title,
-            description: item.description
+            description: item.description,
+            image: item.image
           }))
         } : undefined,
         availability: availability ? {
@@ -150,10 +212,12 @@ export class ToursService {
     });
   }
 
-  async remove(id: string, ownerId: string) {
+  async remove(id: string, user: { id: string; role: string }) {
     const tour = await this.prisma.tour.findUnique({ where: { id } });
-    if (!tour || tour.ownerId !== ownerId) {
-      throw new NotFoundException('Bạn không có quyền xóa tour này');
+    if (!tour) throw new NotFoundException('Không tìm thấy tour này');
+    
+    if (tour.ownerId !== user.id && user.role !== 'ADMIN') {
+      throw new ForbiddenException('Bạn không có quyền xóa tour này');
     }
     return this.prisma.tour.delete({ where: { id } });
   }

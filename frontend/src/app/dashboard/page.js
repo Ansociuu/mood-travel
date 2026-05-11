@@ -8,7 +8,7 @@ import {
   User, ShoppingBag, LogOut, Camera, MapPin, Calendar, 
   Clock, CreditCard, ChevronRight, XCircle, CheckCircle, 
   AlertCircle, Heart, Star, Shield, LayoutDashboard,
-  TrendingUp, Wallet, Map, PieChart, MessageSquare
+  TrendingUp, Wallet, Map, PieChart, MessageSquare, Settings
 } from "lucide-react";
 import { authApi, bookingsApi, uploadApi, wishlistApi, reviewsApi } from "@/lib/api";
 
@@ -310,6 +310,22 @@ export default function DashboardPage() {
                     <tab.icon size={18} /> {tab.label}
                   </button>
                 ))}
+                
+                {(user?.role === 'ADMIN' || user?.role === 'OWNER') && (
+                  <Link 
+                    href="/admin" 
+                    style={{ 
+                      marginTop: "12px",
+                      display: "flex", alignItems: "center", gap: "12px", width: "100%", padding: "12px 16px", borderRadius: "12px", 
+                      background: "rgba(13,148,136,0.1)", 
+                      color: "#0d9488", 
+                      fontWeight: 800, fontSize: "14px", cursor: "pointer", transition: "all 0.2s",
+                      textDecoration: "none"
+                    }}
+                  >
+                    <Settings size={18} /> Quản lý hệ thống
+                  </Link>
+                )}
               </div>
             </div>
           </aside>

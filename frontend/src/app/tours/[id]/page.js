@@ -179,28 +179,34 @@ export default function TourDetailPage() {
             </div>
 
             {/* INCLUDES & EXCLUDES */}
-            <div style={{ paddingBottom: "32px", borderBottom: "1px solid rgba(0,0,0,0.05)", marginBottom: "32px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px" }}>
-              <div style={{ background: "#f0fdfa", padding: "24px", borderRadius: "20px", border: "1px solid rgba(13,148,136,0.2)" }}>
-                <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: "18px", fontWeight: 800, color: "#0f172a", marginBottom: "20px" }}>Bao gồm</h2>
-                <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                  {tour.includes?.map((item, idx) => (
-                    <div key={idx} style={{ display: "flex", alignItems: "flex-start", gap: "12px", color: "#0f172a", fontSize: "15px", fontWeight: 600, lineHeight: 1.5 }}>
-                      <CheckCircle2 size={20} color="#0d9488" style={{ flexShrink: 0 }} /> {item}
+            {( (tour.includes && tour.includes.length > 0) || (tour.excludes && tour.excludes.length > 0) ) && (
+              <div style={{ paddingBottom: "32px", borderBottom: "1px solid rgba(0,0,0,0.05)", marginBottom: "32px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px" }}>
+                {tour.includes && tour.includes.length > 0 && (
+                  <div style={{ background: "#f0fdfa", padding: "24px", borderRadius: "20px", border: "1px solid rgba(13,148,136,0.2)" }}>
+                    <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: "18px", fontWeight: 800, color: "#0f172a", marginBottom: "20px" }}>Bao gồm</h2>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                      {tour.includes.map((item, idx) => (
+                        <div key={idx} style={{ display: "flex", alignItems: "flex-start", gap: "12px", color: "#0f172a", fontSize: "15px", fontWeight: 600, lineHeight: 1.5 }}>
+                          <CheckCircle2 size={20} color="#0d9488" style={{ flexShrink: 0 }} /> {item}
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </div>
-              <div style={{ background: "#fef2f2", padding: "24px", borderRadius: "20px", border: "1px solid rgba(239,68,68,0.2)" }}>
-                <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: "18px", fontWeight: 800, color: "#0f172a", marginBottom: "20px" }}>Không bao gồm</h2>
-                <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                  {tour.excludes?.map((item, idx) => (
-                    <div key={idx} style={{ display: "flex", alignItems: "flex-start", gap: "12px", color: "#0f172a", fontSize: "15px", fontWeight: 600, lineHeight: 1.5 }}>
-                      <XCircle size={20} color="#ef4444" style={{ flexShrink: 0 }} /> {item}
+                  </div>
+                )}
+                {tour.excludes && tour.excludes.length > 0 && (
+                  <div style={{ background: "#fef2f2", padding: "24px", borderRadius: "20px", border: "1px solid rgba(239,68,68,0.2)" }}>
+                    <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: "18px", fontWeight: 800, color: "#0f172a", marginBottom: "20px" }}>Không bao gồm</h2>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                      {tour.excludes.map((item, idx) => (
+                        <div key={idx} style={{ display: "flex", alignItems: "flex-start", gap: "12px", color: "#0f172a", fontSize: "15px", fontWeight: 600, lineHeight: 1.5 }}>
+                          <XCircle size={20} color="#ef4444" style={{ flexShrink: 0 }} /> {item}
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
+                  </div>
+                )}
               </div>
-            </div>
+            )}
 
             {/* ITINERARY TIMELINE */}
             <div style={{ paddingBottom: "32px", borderBottom: "1px solid rgba(0,0,0,0.05)", marginBottom: "32px" }}>
@@ -210,8 +216,7 @@ export default function TourDetailPage() {
                 <div style={{ position: "absolute", left: "31px", top: "16px", bottom: "16px", width: "2px", background: "#e2e8f0", zIndex: 0 }}></div>
                 
                 {tour.itineraries?.map((day, idx) => {
-                  // MOCK: Generate a thumbnail for each day based on index
-                  const thumbnail = tour.images && tour.images[idx % tour.images.length];
+                  const thumbnail = day.image || (tour.images && tour.images[idx % tour.images.length]);
                   return (
                     <div key={idx} style={{ display: "flex", gap: "24px", position: "relative", zIndex: 1, paddingBottom: idx === tour.itineraries.length - 1 ? "0" : "40px" }}>
                       <div style={{ width: "64px", height: "64px", background: "#f0fdfa", borderRadius: "50%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", border: "2px solid #0d9488", flexShrink: 0, boxShadow: "0 0 0 4px #f8fafc" }}>

@@ -13,10 +13,14 @@ html {
 body {
   min-height: 100vh;
   background: #f8fafc; /* Slate 50 - Very light gray/pearl */
-  font-family: 'Inter', sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color: #0f172a; /* Slate 900 */
   overflow-x: hidden;
-  letter-spacing: 0.2px;
+  letter-spacing: -0.01em;
+}
+
+button, input, select, textarea {
+  font-family: inherit;
 }
 
 ::-webkit-scrollbar { width: 6px; }
@@ -181,7 +185,6 @@ body {
   text-transform: uppercase;
 }
 input, select {
-  font-family: 'Inter', sans-serif;
   outline: none; border: none;
   background: transparent;
   color: #0f172a; width: 100%;

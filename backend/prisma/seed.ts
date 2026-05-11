@@ -53,6 +53,7 @@ async function main() {
       name: 'Nguyễn Trường Giang',
       role: 'OWNER',
       avatar: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=150&q=80',
+      isVerified: true,
     },
   });
 
@@ -63,6 +64,7 @@ async function main() {
       name: 'Trần Mai Phương',
       role: 'OWNER',
       avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&q=80',
+      isVerified: true,
     },
   });
 

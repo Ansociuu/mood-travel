@@ -71,4 +71,55 @@ export class ReviewsService {
       orderBy: { createdAt: 'desc' },
     });
   }
+
+  async findOwnerReviews(ownerId: string, role: string = 'USER') {
+    const where: any = {};
+    if (role !== 'ADMIN') {
+      where.OR = [
+        { hotel: { ownerId } },
+        { tour: { ownerId } }
+      ];
+    }
+
+    return this.prisma.review.findMany({
+      where,
+      include: {
+        user: { select: { name: true, avatar: true, email: true } },
+        hotel: { select: { name: true } },
+        tour: { select: { name: true } },
+        booking: { select: { shortId: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async reply(id: string, reply: string, ownerId: string, role: string = 'USER') {
+    const review = await this.prisma.review.findUnique({
+      where: { id },
+      include: { 
+        hotel: true, 
+        tour: true 
+      }
+    });
+
+    if (!review) {
+      throw new BadRequestException('Đánh giá không tồn tại');
+    }
+
+    // Verify ownership or Admin
+    const isOwner = (review.hotel && review.hotel.ownerId === ownerId) || 
+                    (review.tour && review.tour.ownerId === ownerId);
+
+    if (!isOwner && role !== 'ADMIN') {
+      throw new BadRequestException('Bạn không có quyền phản hồi đánh giá này');
+    }
+
+    return this.prisma.review.update({
+      where: { id },
+      data: {
+        reply,
+        repliedAt: new Date(),
+      }
+    });
+  }
 }

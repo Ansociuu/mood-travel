@@ -50,21 +50,33 @@ export default function HomestayDetailPage() {
           lng: data.lng,
         });
         
+        const rooms = data.rooms || [];
+        const capacities = rooms.map(r => Number(r.capacity)).filter(c => c > 0);
+        const maxGuests = capacities.length > 0 ? Math.max(...capacities) : 2;
+        const totalPhysicalRooms = rooms.reduce((sum, r) => sum + (Number(r.totalRooms) || 1), 0);
+        const bathroomCounts = rooms.map(r => Number(r.bathrooms)).filter(b => b > 0);
+        const maxBathrooms = bathroomCounts.length > 0 ? Math.max(...bathroomCounts) : 1;
+
         setHomeDetail({
-          type: data.type === 'HOTEL' ? 'Khách sạn' : data.type === 'HOMESTAY' ? 'Homestay' : data.type,
+          type: data.type === 'HOTEL' ? 'Khách sạn'
+              : data.type === 'HOMESTAY' ? 'Homestay'
+              : data.type === 'RESORT' ? 'Resort'
+              : data.type === 'VILLA' ? 'Biệt thự'
+              : data.type || 'Chỗ ở',
           description: data.description,
           gallery: data.images?.length > 0 ? data.images : mockHomestayDetail.gallery,
           capacity: {
-            guests: data.rooms?.[0]?.capacity || 2,
-            bedrooms: data.rooms?.length || 1,
-            beds: data.rooms?.[0]?.capacity || 2,
-            baths: 1
+            guests:    maxGuests,
+            bedrooms:  totalPhysicalRooms || 1,
+            roomTypes: rooms.length,
+            baths:     maxBathrooms
           },
-          amenities: data.amenities?.length > 0 ? data.amenities.map(a => ({
-            icon: "CheckCircle2", // Fallback if no exact match
-            label: a.amenity.name
-          })) : mockHomestayDetail.amenities,
-          rules: data.policies?.length > 0 ? data.policies : mockHomestayDetail.rules,
+          amenities: data.amenities?.length > 0 
+            ? data.amenities.map(a => ({ icon: a.amenity?.icon || a.icon || "CheckCircle2", label: a.amenity?.name || a.label || a }))
+            : mockHomestayDetail.amenities,
+          rules: data.policies?.rules?.length > 0 
+            ? data.policies.rules 
+            : mockHomestayDetail.rules,
           host: {
             name: data.owner?.name || "VietJourney Host",
             joined: "2024",
@@ -104,9 +116,6 @@ export default function HomestayDetailPage() {
     }
 
     // Save to local storage for checkout
-    const diffTime = Math.abs(dateRange[0].endDate - dateRange[0].startDate);
-    const nights = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1;
-    
     const bookingData = {
       type: 'hotel',
       hotelId: homeBasic.id,
@@ -117,9 +126,9 @@ export default function HomestayDetailPage() {
       guests: bookingGuests,
       checkIn: dateRange[0].startDate,
       checkOut: dateRange[0].endDate,
-      nights: nights,
-      priceAtBooking: Number(selectedRoom?.basePrice || homeBasic.price),
-      totalAmount: Number(selectedRoom?.basePrice || homeBasic.price) * nights,
+      nights: totalNights,
+      priceAtBooking: effectivePrice,
+      totalAmount: effectivePrice * totalNights,
       image: homeDetail.gallery[0]
     };
     sessionStorage.setItem("pendingBooking", JSON.stringify(bookingData));
@@ -165,6 +174,48 @@ export default function HomestayDetailPage() {
       </>
     );
   }
+
+  const calculateEffectivePrice = () => {
+    const nights = Math.ceil(Math.abs(dateRange[0].endDate - dateRange[0].startDate) / (1000 * 60 * 60 * 24)) || 1;
+    let pricePerNight = Number(selectedRoom?.basePrice || homeBasic.price);
+    let priceGroups = []; // [{ price: number, nights: number }]
+    
+    const start = new Date(dateRange[0].startDate);
+    const end = new Date(dateRange[0].endDate);
+    
+    let totalAmount = 0;
+    for (let i = 0; i < nights; i++) {
+      const currentDay = new Date(start);
+      currentDay.setDate(start.getDate() + i);
+      currentDay.setHours(0,0,0,0);
+      
+      const specific = selectedRoom?.availability?.find(av => {
+        const avDate = new Date(av.date).setHours(0,0,0,0);
+        return avDate === currentDay.getTime();
+      });
+      
+      const dayPrice = specific ? Number(specific.price) : Number(selectedRoom?.basePrice || homeBasic.price);
+      totalAmount += dayPrice;
+      
+      // Grouping logic
+      const lastGroup = priceGroups[priceGroups.length - 1];
+      if (lastGroup && lastGroup.price === dayPrice) {
+        lastGroup.nights += 1;
+      } else {
+        priceGroups.push({ price: dayPrice, nights: 1 });
+      }
+    }
+
+    return {
+      avg: Math.round(totalAmount / nights),
+      total: totalAmount,
+      groups: priceGroups
+    };
+  };
+
+  const pricing = calculateEffectivePrice();
+  const effectivePrice = pricing.avg;
+  const totalNights = Math.ceil(Math.abs(dateRange[0].endDate - dateRange[0].startDate) / (1000 * 60 * 60 * 24)) || 1;
 
   const mainImg = homeDetail.gallery[0];
   const subImgs = homeDetail.gallery.slice(1, 5);
@@ -240,7 +291,9 @@ export default function HomestayDetailPage() {
         <div style={{ position: "sticky", top: "72px", background: "rgba(255,255,255,0.95)", backdropFilter: "blur(10px)", zIndex: 50, padding: "16px 0", borderBottom: "1px solid rgba(0,0,0,0.05)", marginBottom: "32px", display: "flex", gap: "24px" }}>
           <a href="#overview" style={{ textDecoration: "none", color: "#0f172a", fontWeight: 600, fontSize: "15px" }}>Tổng quan</a>
           <a href="#amenities" style={{ textDecoration: "none", color: "#64748b", fontWeight: 600, fontSize: "15px" }}>Tiện nghi</a>
-          <a href="#rooms" style={{ textDecoration: "none", color: "#64748b", fontWeight: 600, fontSize: "15px" }}>Phòng</a>
+          {homeDetail.rooms?.length > 1 && (
+            <a href="#rooms" style={{ textDecoration: "none", color: "#64748b", fontWeight: 600, fontSize: "15px" }}>Phòng</a>
+          )}
           <a href="#rules" style={{ textDecoration: "none", color: "#64748b", fontWeight: 600, fontSize: "15px" }}>Nội quy</a>
           <a href="#reviews" style={{ textDecoration: "none", color: "#64748b", fontWeight: 600, fontSize: "15px" }}>Đánh giá</a>
         </div>
@@ -254,14 +307,18 @@ export default function HomestayDetailPage() {
             <div id="overview" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: "32px", borderBottom: "1px solid rgba(0,0,0,0.05)", marginBottom: "32px" }}>
               <div>
                 <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: "24px", fontWeight: 800, color: "#0f172a", marginBottom: "8px" }}>{homeDetail.type} - Chủ nhà {homeDetail.host.name}</h2>
-                <div style={{ display: "flex", alignItems: "center", gap: "12px", fontSize: "16px", color: "#0f172a", fontWeight: 500 }}>
-                  <span>{homeDetail.capacity.guests} khách</span>
-                  <span>•</span>
-                  <span>{homeDetail.capacity.bedrooms} phòng ngủ</span>
-                  <span>•</span>
-                  <span>{homeDetail.capacity.beds} giường</span>
-                  <span>•</span>
+                <div style={{ display: "flex", alignItems: "center", gap: "12px", fontSize: "16px", color: "#0f172a", fontWeight: 500, flexWrap: "wrap" }}>
+                  <span>Tối đa {homeDetail.capacity.guests} khách</span>
+                  <span style={{ color: "#cbd5e1" }}>·</span>
+                  <span>{homeDetail.capacity.bedrooms} phòng</span>
+                  <span style={{ color: "#cbd5e1" }}>·</span>
                   <span>{homeDetail.capacity.baths} phòng tắm</span>
+                  {homeDetail.capacity.roomTypes > 1 && (
+                    <>
+                      <span style={{ color: "#cbd5e1" }}>·</span>
+                      <span style={{ fontSize: "14px", color: "#64748b" }}>{homeDetail.capacity.roomTypes} loại phòng</span>
+                    </>
+                  )}
                 </div>
               </div>
               <img src={homeDetail.host.avatar} alt="Host" style={{ width: "64px", height: "64px", borderRadius: "50%", objectFit: "cover", boxShadow: "0 4px 20px rgba(0,0,0,0.1)" }} />
@@ -287,25 +344,47 @@ export default function HomestayDetailPage() {
               </button>
             </div>
 
-            {/* ROOM SELECTION */}
-            {homeDetail.rooms && homeDetail.rooms.length > 0 && (
+            {/* ROOM SELECTION — chỉ hiển thị khi có ≥ 2 loại phòng */}
+            {homeDetail.rooms && homeDetail.rooms.length > 1 && (
               <div id="rooms" style={{ paddingBottom: "32px", borderBottom: "1px solid rgba(0,0,0,0.05)", marginBottom: "32px" }}>
                 <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: "22px", fontWeight: 800, color: "#0f172a", marginBottom: "24px" }}>Chọn loại phòng</h2>
                 <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                  {homeDetail.rooms.map((room) => (
-                    <div key={room.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", border: selectedRoom?.id === room.id ? "2px solid #0d9488" : "1px solid rgba(0,0,0,0.1)", borderRadius: "16px", padding: "20px", cursor: "pointer", transition: "all 0.2s" }} onClick={() => setSelectedRoom(room)}>
-                      <div>
-                        <h3 style={{ fontSize: "18px", fontWeight: 700, color: "#0f172a", marginBottom: "8px" }}>{room.name}</h3>
-                        <div style={{ display: "flex", gap: "12px", color: "#64748b", fontSize: "14px", fontWeight: 500, marginBottom: "8px" }}>
-                          <span style={{ display: "flex", alignItems: "center", gap: "4px" }}><Users size={16} /> Tối đa {room.capacity} khách</span>
+                  {homeDetail.rooms.map((room) => {
+                    const getRoomEffectivePrice = (r) => {
+                      let p = Number(r.basePrice);
+                      if (r.availability?.length > 0) {
+                        const start = new Date(dateRange[0].startDate).setHours(0,0,0,0);
+                        const end = new Date(dateRange[0].endDate).setHours(0,0,0,0);
+                        const specific = r.availability.filter(av => {
+                          const d = new Date(av.date).setHours(0,0,0,0);
+                          return d >= start && d < end;
+                        });
+                        if (specific.length > 0) {
+                          const total = specific.reduce((s, av) => s + Number(av.price), 0);
+                          const n = Math.ceil(Math.abs(dateRange[0].endDate - dateRange[0].startDate) / (1000 * 60 * 60 * 24)) || 1;
+                          p = (total + (Math.max(0, n - specific.length) * Number(r.basePrice))) / n;
+                        }
+                      }
+                      return Math.round(p);
+                    };
+                    const rPrice = getRoomEffectivePrice(room);
+
+                    return (
+                      <div key={room.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", border: selectedRoom?.id === room.id ? "2px solid #0d9488" : "1px solid rgba(0,0,0,0.1)", borderRadius: "16px", padding: "20px", cursor: "pointer", transition: "all 0.2s" }} onClick={() => setSelectedRoom(room)}>
+                        <div>
+                          <h3 style={{ fontSize: "18px", fontWeight: 700, color: "#0f172a", marginBottom: "8px" }}>{room.name}</h3>
+                          <div style={{ display: "flex", gap: "12px", color: "#64748b", fontSize: "14px", fontWeight: 500, marginBottom: "8px" }}>
+                            <span style={{ display: "flex", alignItems: "center", gap: "4px" }}><Users size={16} /> Tối đa {room.capacity} khách</span>
+                            {room.description && <span>• {room.description}</span>}
+                          </div>
+                          <div style={{ fontSize: "16px", fontWeight: 800, color: "#0d9488" }}>
+                            ₫{rPrice.toLocaleString('en-US')} <span style={{ fontSize: "14px", color: "#64748b", fontWeight: 500 }}>/ đêm</span>
+                          </div>
                         </div>
-                        <div style={{ fontSize: "16px", fontWeight: 800, color: "#0d9488" }}>
-                          ₫{Number(room.basePrice).toLocaleString('en-US')} <span style={{ fontSize: "14px", color: "#64748b", fontWeight: 500 }}>/ đêm</span>
-                        </div>
+                        <div style={{ width: "24px", height: "24px", borderRadius: "50%", border: selectedRoom?.id === room.id ? "7px solid #0d9488" : "2px solid #cbd5e1", transition: "all 0.2s", flexShrink: 0 }}></div>
                       </div>
-                      <div style={{ width: "24px", height: "24px", borderRadius: "50%", border: selectedRoom?.id === room.id ? "7px solid #0d9488" : "2px solid #cbd5e1", transition: "all 0.2s" }}></div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -367,7 +446,7 @@ export default function HomestayDetailPage() {
           <div>
             <div style={{ position: "sticky", top: "100px", background: "#ffffff", border: "1px solid rgba(0,0,0,0.15)", borderRadius: "24px", padding: "24px", boxShadow: "0 20px 40px rgba(0,0,0,0.1)" }}>
               <div style={{ display: "flex", alignItems: "baseline", gap: "6px", marginBottom: "24px" }}>
-                <span style={{ fontSize: "24px", fontWeight: 800, color: "#0f172a" }}>₫{Number(selectedRoom?.basePrice || homeBasic.price).toLocaleString('en-US')}</span>
+                <span style={{ fontSize: "24px", fontWeight: 800, color: "#0f172a" }}>₫{effectivePrice.toLocaleString('en-US')}</span>
                 <span style={{ fontSize: "16px", color: "#64748b", fontWeight: 500 }}>/ đêm {selectedRoom ? `(${selectedRoom.name})` : ''}</span>
               </div>
 
@@ -416,17 +495,26 @@ export default function HomestayDetailPage() {
                 Bạn vẫn chưa bị trừ tiền
               </div>
 
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "16px", fontSize: "16px", color: "#475569", fontWeight: 500 }}>
-                <span style={{ textDecoration: "underline" }}>₫{Number(selectedRoom?.basePrice || homeBasic.price).toLocaleString('en-US')} x {Math.ceil(Math.abs(dateRange[0].endDate - dateRange[0].startDate) / (1000 * 60 * 60 * 24)) || 1} đêm</span>
-                <span>₫{Number((selectedRoom?.basePrice || homeBasic.price) * (Math.ceil(Math.abs(dateRange[0].endDate - dateRange[0].startDate) / (1000 * 60 * 60 * 24)) || 1)).toLocaleString('en-US')}</span>
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "16px", fontSize: "16px", color: "#475569", fontWeight: 500 }}>
+              {pricing.groups.map((group, gIdx) => (
+                <div key={gIdx} style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px", fontSize: "15px", color: "#475569", fontWeight: 500 }}>
+                  <div style={{ display: "flex", flexDirection: "column" }}>
+                    <span style={{ textDecoration: "underline" }}>₫{group.price.toLocaleString('en-US')} x {group.nights} đêm</span>
+                    <span style={{ fontSize: "11px", color: group.price > (selectedRoom?.basePrice || homeBasic.price) ? "#ef4444" : "#64748b", fontWeight: 700 }}>
+                      {group.price > (selectedRoom?.basePrice || homeBasic.price) ? "GIÁ CAO ĐIỂM" : group.price < (selectedRoom?.basePrice || homeBasic.price) ? "GIÁ ƯU ĐÃI" : "GIÁ TIÊU CHUẨN"}
+                    </span>
+                  </div>
+                  <span>₫{(group.price * group.nights).toLocaleString('en-US')}</span>
+                </div>
+              ))}
+              
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "16px", fontSize: "15px", color: "#475569", fontWeight: 500 }}>
                 <span style={{ textDecoration: "underline" }}>Phí dịch vụ VietJourney</span>
                 <span>₫0</span>
               </div>
-              <div style={{ display: "flex", justifyContent: "space-between", marginTop: "24px", paddingTop: "24px", borderTop: "1px solid rgba(0,0,0,0.1)", fontSize: "18px", color: "#0f172a", fontWeight: 800 }}>
+
+              <div style={{ display: "flex", justifyContent: "space-between", marginTop: "20px", paddingTop: "20px", borderTop: "1px solid rgba(0,0,0,0.1)", fontSize: "18px", color: "#0f172a", fontWeight: 800 }}>
                 <span>Tổng trước thuế</span>
-                <span>₫{Number((selectedRoom?.basePrice || homeBasic.price) * (Math.ceil(Math.abs(dateRange[0].endDate - dateRange[0].startDate) / (1000 * 60 * 60 * 24)) || 1)).toLocaleString('en-US')}</span>
+                <span>₫{pricing.total.toLocaleString('en-US')}</span>
               </div>
             </div>
           </div>

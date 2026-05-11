@@ -23,8 +23,12 @@ export default function LoginPage() {
       localStorage.setItem("token", data.access_token);
       localStorage.setItem("user", JSON.stringify(data.user));
       
-      // Redirect to home or intended page
-      router.push("/");
+      // Redirect based on role
+      if (data.user.role === 'ADMIN' || data.user.role === 'OWNER') {
+        router.push("/admin");
+      } else {
+        router.push("/");
+      }
       router.refresh();
     } catch (err) {
       setError(err.message || "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.");

@@ -8,26 +8,42 @@ export class BookingsController {
   constructor(private readonly bookingsService: BookingsService) {}
 
   @UseGuards(JwtAuthGuard)
-  @Post()
-  create(@Request() req, @Body() createBookingDto: CreateBookingDto) {
-    return this.bookingsService.create(req.user.id, createBookingDto);
-  }
-
-  @UseGuards(JwtAuthGuard)
   @Get('me')
   findMyBookings(@Request() req) {
     return this.bookingsService.findMyBookings(req.user.id);
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.bookingsService.findOne(id);
+  @Get('owner')
+  findOwnerBookings(@Request() req) {
+    return this.bookingsService.findOwnerBookings(req.user.id, req.user.role);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post()
+  create(@Request() req, @Body() createBookingDto: CreateBookingDto) {
+    return this.bookingsService.create(req.user.id, createBookingDto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id/status')
+  updateStatus(
+    @Param('id') id: string,
+    @Body('status') status: string,
+    @Request() req,
+  ) {
+    return this.bookingsService.updateStatus(id, status, req.user.id, req.user.role);
   }
 
   @UseGuards(JwtAuthGuard)
   @Patch(':id/cancel')
   cancel(@Param('id') id: string, @Request() req) {
     return this.bookingsService.cancel(id, req.user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.bookingsService.findOne(id);
   }
 }

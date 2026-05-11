@@ -28,4 +28,15 @@ export class ReviewsController {
   findByTour(@Param('id') id: string) {
     return this.reviewsService.findByTour(id);
   }
+  @UseGuards(JwtAuthGuard)
+  @Get('owner')
+  findOwnerReviews(@Request() req) {
+    return this.reviewsService.findOwnerReviews(req.user.id, req.user.role);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(':id/reply')
+  reply(@Param('id') id: string, @Body('reply') reply: string, @Request() req) {
+    return this.reviewsService.reply(id, reply, req.user.id, req.user.role);
+  }
 }

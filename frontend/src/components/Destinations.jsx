@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import StarRating from "./StarRating";
-import { allDestinations, regionFilters } from "../data/mockData";
+import { toursApi } from "../lib/api";
 import { Heart, MapPin, Moon } from "lucide-react";
 
 export default function Destinations() {
@@ -10,11 +10,43 @@ export default function Destinations() {
   const [regionFilter, setRegionFilter] = useState("all");
   const [visibleCards, setVisibleCards] = useState({});
   const [wishlist, setWishlist] = useState({});
+  const [allTours, setAllTours] = useState([]);
+  const [loading, setLoading] = useState(true);
   const cardRefs = useRef({});
 
-  const filteredDestinations = regionFilter === "all"
-    ? allDestinations
-    : allDestinations.filter(d => d.region === regionFilter);
+  const regionFilters = [
+    { key: "all", label: "Tất cả" },
+    { key: "bac", label: "Miền Bắc" },
+    { key: "trung", label: "Miền Trung" },
+    { key: "nam", label: "Miền Nam" }
+  ];
+
+  useEffect(() => {
+    const fetchTours = async () => {
+      try {
+        const data = await toursApi.getAll();
+        setAllTours(data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTours();
+  }, []);
+
+  const filteredDestinations = allTours.filter(tour => {
+    if (regionFilter === "all") return true;
+    
+    const isBac = ['Hà Giang', 'Sapa', 'Hạ Long', 'Cát Bà'].some(k => tour.location.includes(k));
+    const isTrung = ['Đà Nẵng', 'Hội An', 'Huế', 'Đà Lạt'].some(k => tour.location.includes(k));
+    const isNam = ['Cần Thơ', 'Sài Gòn', 'Phú Quốc'].some(k => tour.location.includes(k));
+    
+    if (regionFilter === "bac") return isBac;
+    if (regionFilter === "trung") return isTrung;
+    if (regionFilter === "nam") return isNam;
+    return true;
+  }).slice(0, 4);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -64,44 +96,51 @@ export default function Destinations() {
         </div>
 
         <div className="dest-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "24px" }}>
-          {filteredDestinations.map((dest, i) => (
-            <div
-              key={dest.id}
-              ref={el => cardRefs.current[`dest-${dest.id}`] = el}
-              data-id={`dest-${dest.id}`}
-              className={`card-reveal glass-hover ${visibleCards[`dest-${dest.id}`] ? "visible" : ""}`}
-              style={{ ...glassCard, overflow: "hidden", cursor: "pointer", transitionDelay: `${i * 0.07}s` }}
-              onClick={() => router.push(`/tours/${dest.id}`)}
-            >
-              <div style={{ position: "relative", height: "220px", overflow: "hidden" }}>
-                <img src={dest.img} alt={dest.name} className="card-img" />
-                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.7) 100%)" }} />
-                <span className="tag-badge" style={{ position: "absolute", top: "16px", right: "16px", background: tagColor[dest.tag] || "#0d9488", color: "#fff", boxShadow: "0 4px 10px rgba(0,0,0,0.2)" }}>{dest.tag}</span>
-                {/* Wishlist */}
-                <button className="wishlist-btn" onClick={(e) => { e.stopPropagation(); toggleWishlist(dest.id); }} style={{ position: "absolute", top: "12px", left: "12px", width: "36px", height: "36px", background: "rgba(255,255,255,0.9)", backdropFilter: "blur(8px)", border: "none", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 10px rgba(0,0,0,0.1)" }}>
-                  <Heart size={16} fill={wishlist[dest.id] ? "#ef4444" : "transparent"} color={wishlist[dest.id] ? "#ef4444" : "#64748b"} />
-                </button>
-                <div style={{ position: "absolute", bottom: "16px", left: "16px", background: "rgba(255,255,255,0.9)", backdropFilter: "blur(8px)", border: "none", borderRadius: "8px", padding: "6px 12px", fontSize: "12px", color: "#0f172a", fontWeight: 700, display: "flex", alignItems: "center", gap: "6px", boxShadow: "0 4px 10px rgba(0,0,0,0.1)" }}>
-                  <Moon size={14} color="#d97706" /> {dest.nights} đêm
-                </div>
-              </div>
-              <div style={{ padding: "20px" }}>
-                <div style={{ fontSize: "12px", color: "#64748b", marginBottom: "6px", display: "flex", alignItems: "center", gap: "4px", fontWeight: 600 }}>
-                  <MapPin size={12} color="#0d9488" /> {dest.country}
-                </div>
-                <h3 style={{ fontSize: "18px", fontWeight: 800, marginBottom: "10px", color: "#0f172a" }}>{dest.name}</h3>
-                <StarRating rating={dest.rating} />
-                <div style={{ fontSize: "12px", color: "#94a3b8", marginTop: "4px", marginBottom: "18px", fontWeight: 500 }}>{dest.reviews.toLocaleString()} đánh giá</div>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: "16px", borderTop: "1px solid rgba(0,0,0,0.05)" }}>
-                  <div>
-                    <span style={{ fontSize: "18px", fontWeight: 800, color: "#0d9488" }}>₫{dest.price}</span>
-                    <span style={{ fontSize: "11px", color: "#94a3b8", fontWeight: 500 }}>/người</span>
+          {loading ? (
+            Array(4).fill(0).map((_, i) => (
+              <div key={i} style={{ height: "350px", background: "#f1f5f9", borderRadius: "24px", animation: "pulse 1.5s infinite" }} />
+            ))
+          ) : filteredDestinations.map((dest, i) => {
+            const displayTag = i === 0 ? "Bestseller" : i === 1 ? "Hot" : "New";
+            return (
+              <div
+                key={dest.id}
+                ref={el => cardRefs.current[`dest-${dest.id}`] = el}
+                data-id={`dest-${dest.id}`}
+                className={`card-reveal glass-hover ${visibleCards[`dest-${dest.id}`] ? "visible" : ""}`}
+                style={{ ...glassCard, overflow: "hidden", cursor: "pointer", transitionDelay: `${i * 0.07}s` }}
+                onClick={() => router.push(`/tours/${dest.id}`)}
+              >
+                <div style={{ position: "relative", height: "220px", overflow: "hidden" }}>
+                  <img src={dest.images?.[0] || "https://images.unsplash.com/photo-1528127269322-539801943592?w=800"} alt={dest.name} className="card-img" />
+                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.7) 100%)" }} />
+                  <span className="tag-badge" style={{ position: "absolute", top: "16px", right: "16px", background: tagColor[displayTag] || "#0d9488", color: "#fff", boxShadow: "0 4px 10px rgba(0,0,0,0.2)" }}>{displayTag}</span>
+                  {/* Wishlist */}
+                  <button className="wishlist-btn" onClick={(e) => { e.stopPropagation(); toggleWishlist(dest.id); }} style={{ position: "absolute", top: "12px", left: "12px", width: "36px", height: "36px", background: "rgba(255,255,255,0.9)", backdropFilter: "blur(8px)", border: "none", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 10px rgba(0,0,0,0.1)" }}>
+                    <Heart size={16} fill={wishlist[dest.id] ? "#ef4444" : "transparent"} color={wishlist[dest.id] ? "#ef4444" : "#64748b"} />
+                  </button>
+                  <div style={{ position: "absolute", bottom: "16px", left: "16px", background: "rgba(255,255,255,0.9)", backdropFilter: "blur(8px)", border: "none", borderRadius: "8px", padding: "6px 12px", fontSize: "12px", color: "#0f172a", fontWeight: 700, display: "flex", alignItems: "center", gap: "6px", boxShadow: "0 4px 10px rgba(0,0,0,0.1)" }}>
+                    <Moon size={14} color="#d97706" /> {dest.durationNights || 0} đêm
                   </div>
-                  <button style={{ background: "rgba(13,148,136,0.1)", border: "1px solid rgba(13,148,136,0.2)", color: "#0d9488", padding: "8px 16px", borderRadius: "8px", cursor: "pointer", fontSize: "12px", fontWeight: 700, fontFamily: "'Inter', sans-serif", transition: "all 0.2s" }} onMouseEnter={e => { e.target.style.background = "#0d9488"; e.target.style.color = "#fff"; }} onMouseLeave={e => { e.target.style.background = "rgba(13,148,136,0.1)"; e.target.style.color = "#0d9488"; }}>Đặt ngay</button>
+                </div>
+                <div style={{ padding: "20px" }}>
+                  <div style={{ fontSize: "12px", color: "#64748b", marginBottom: "6px", display: "flex", alignItems: "center", gap: "4px", fontWeight: 600 }}>
+                    <MapPin size={12} color="#0d9488" /> {dest.location}
+                  </div>
+                  <h3 style={{ fontSize: "18px", fontWeight: 800, marginBottom: "10px", color: "#0f172a", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{dest.name}</h3>
+                  <StarRating rating={dest.rating || 5.0} />
+                  <div style={{ fontSize: "12px", color: "#94a3b8", marginTop: "4px", marginBottom: "18px", fontWeight: 500 }}>{dest.reviewCount || 0} đánh giá</div>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: "16px", borderTop: "1px solid rgba(0,0,0,0.05)" }}>
+                    <div>
+                      <span style={{ fontSize: "18px", fontWeight: 800, color: "#0d9488" }}>₫{Number(dest.basePrice).toLocaleString('vi-VN')}</span>
+                      <span style={{ fontSize: "11px", color: "#94a3b8", fontWeight: 500 }}>/người</span>
+                    </div>
+                    <button style={{ background: "rgba(13,148,136,0.1)", border: "1px solid rgba(13,148,136,0.2)", color: "#0d9488", padding: "8px 16px", borderRadius: "8px", cursor: "pointer", fontSize: "12px", fontWeight: 700, fontFamily: "'Inter', sans-serif", transition: "all 0.2s" }} onMouseEnter={e => { e.target.style.background = "#0d9488"; e.target.style.color = "#fff"; }} onMouseLeave={e => { e.target.style.background = "rgba(13,148,136,0.1)"; e.target.style.color = "#0d9488"; }}>Đặt ngay</button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {filteredDestinations.length === 0 && (

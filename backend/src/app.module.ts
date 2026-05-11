@@ -15,6 +15,8 @@ import { PaymentsModule } from './payments/payments.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { WishlistModule } from './wishlist/wishlist.module';
 import { RecommendationsModule } from './recommendations/recommendations.module';
+import { AdminModule } from './admin/admin.module';
+import { CouponsModule } from './coupons/coupons.module';
 
 @Module({
   imports: [
@@ -32,6 +34,8 @@ import { RecommendationsModule } from './recommendations/recommendations.module'
     ReviewsModule,
     WishlistModule,
     RecommendationsModule,
+    AdminModule,
+    CouponsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

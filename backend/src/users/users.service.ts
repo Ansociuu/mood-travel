@@ -72,4 +72,48 @@ export class UsersService {
       wishlistCount
     };
   }
+
+  // Admin Methods
+  async findAll() {
+    return this.prisma.user.findMany({
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        isVerified: true,
+        createdAt: true,
+        _count: {
+          select: {
+            bookings: true,
+            ownedHotels: true,
+            ownedTours: true
+          }
+        }
+      }
+    });
+  }
+
+  async changeRole(id: string, role: any) {
+    return this.prisma.user.update({
+      where: { id },
+      data: { role }
+    });
+  }
+
+  async toggleVerify(id: string) {
+    const user = await this.prisma.user.findUnique({ where: { id } });
+    if (!user) {
+      throw new BadRequestException('Người dùng không tồn tại');
+    }
+    return this.prisma.user.update({
+      where: { id },
+      data: { isVerified: !user.isVerified }
+    });
+  }
+
+  async deleteUser(id: string) {
+    return this.prisma.user.delete({ where: { id } });
+  }
 }

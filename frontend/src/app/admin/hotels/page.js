@@ -11,6 +11,8 @@ export default function AdminHotelsPage() {
   const [hotels, setHotels] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
 
   useEffect(() => {
     fetchHotels();
@@ -43,6 +45,9 @@ export default function AdminHotelsPage() {
     h.city.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const totalPages = Math.ceil(filteredHotels.length / itemsPerPage);
+  const paginatedHotels = filteredHotels.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
   return (
     <div>
       <div style={{ marginBottom: "32px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -53,15 +58,8 @@ export default function AdminHotelsPage() {
         <Link 
           href="/admin/hotels/new" 
           style={{ 
-            display: "flex", 
-            alignItems: "center", 
-            gap: "8px", 
-            padding: "12px 24px", 
-            borderRadius: "12px", 
-            background: "#0d9488", 
-            color: "#fff", 
-            fontWeight: 700, 
-            textDecoration: "none",
+            display: "flex", alignItems: "center", gap: "8px", padding: "12px 24px", borderRadius: "12px", 
+            background: "#0d9488", color: "#fff", fontWeight: 700, textDecoration: "none",
             boxShadow: "0 4px 12px rgba(13,148,136,0.2)"
           }}
         >
@@ -77,70 +75,133 @@ export default function AdminHotelsPage() {
             type="text" 
             placeholder="Tìm kiếm tên, địa điểm..." 
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
             style={{ width: "100%", padding: "12px 16px 12px 48px", borderRadius: "12px", border: "1px solid #e2e8f0", outline: "none", fontSize: "14px" }}
           />
         </div>
-        <button style={{ display: "flex", alignItems: "center", gap: "8px", padding: "12px 20px", borderRadius: "12px", border: "1px solid #e2e8f0", background: "#fff", color: "#0f172a", fontWeight: 600, cursor: "pointer" }}>
-          <Filter size={18} /> Bộ lọc
-        </button>
       </div>
 
-      {/* HOTEL LIST */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(350px, 1fr))", gap: "24px" }}>
-        {loading ? (
-          [1, 2, 3].map(i => <div key={i} style={{ height: "300px", borderRadius: "24px", background: "#eee", animation: "pulse 1.5s infinite" }} />)
-        ) : filteredHotels.length === 0 ? (
-          <div style={{ gridColumn: "1/-1", textAlign: "center", padding: "80px", background: "#fff", borderRadius: "24px", border: "1px dashed #cbd5e1" }}>
-            <div style={{ fontSize: "48px", marginBottom: "16px" }}>🏠</div>
-            <h3 style={{ fontSize: "18px", fontWeight: 700, color: "#0f172a" }}>Chưa có cơ sở nào</h3>
-            <p style={{ color: "#64748b", marginBottom: "24px" }}>Hãy bắt đầu bằng cách thêm cơ sở lưu trú đầu tiên của bạn.</p>
-            <Link href="/admin/hotels/new" style={{ color: "#0d9488", fontWeight: 700, textDecoration: "none" }}>Thêm ngay &rarr;</Link>
-          </div>
-        ) : filteredHotels.map((hotel) => (
-          <div key={hotel.id} style={{ background: "#fff", borderRadius: "24px", border: "1px solid rgba(0,0,0,0.05)", overflow: "hidden", transition: "transform 0.2s", boxShadow: "0 4px 20px rgba(0,0,0,0.02)" }}>
-            <div style={{ position: "relative", height: "200px" }}>
-              <img 
-                src={hotel.images?.[0] || "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500&q=80"} 
-                style={{ width: "100%", height: "100%", objectFit: "cover" }} 
-              />
-              <div style={{ position: "absolute", top: "12px", right: "12px", display: "flex", gap: "8px" }}>
-                <Link href={`/admin/hotels/${hotel.id}`} style={{ width: "36px", height: "36px", borderRadius: "10px", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", color: "#0f172a", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }} title="Chỉnh sửa">
-                  <Edit size={16} />
-                </Link>
+      {/* HOTEL TABLE */}
+      <div style={{ background: "#fff", borderRadius: "24px", border: "1px solid rgba(0,0,0,0.05)", overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,0.02)" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
+          <thead style={{ background: "#f8fafc", borderBottom: "1px solid #f1f5f9" }}>
+            <tr>
+              <th style={{ padding: "20px 24px", fontSize: "13px", fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>Homestay / Địa điểm</th>
+              <th style={{ padding: "20px 24px", fontSize: "13px", fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>Loại hình</th>
+              <th style={{ padding: "20px 24px", fontSize: "13px", fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>Số phòng</th>
+              <th style={{ padding: "20px 24px", fontSize: "13px", fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>Giá từ</th>
+              <th style={{ padding: "20px 24px", fontSize: "13px", fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>Đánh giá</th>
+              <th style={{ padding: "20px 24px", fontSize: "13px", fontWeight: 700, color: "#64748b", textTransform: "uppercase", textAlign: "right" }}>Thao tác</th>
+            </tr>
+          </thead>
+          <tbody>
+            {loading ? (
+              [1, 2, 3].map(i => <tr key={i}><td colSpan="6" style={{ padding: "30px", textAlign: "center", color: "#94a3b8" }}>Đang tải...</td></tr>)
+            ) : paginatedHotels.length === 0 ? (
+              <tr><td colSpan="6" style={{ padding: "60px", textAlign: "center", color: "#94a3b8" }}>Không tìm thấy cơ sở nào.</td></tr>
+            ) : paginatedHotels.map((hotel) => (
+              <tr key={hotel.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                <td style={{ padding: "20px 24px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                    <img 
+                      src={hotel.images?.[0] || "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=100"} 
+                      onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=100"; }}
+                      style={{ width: "48px", height: "48px", borderRadius: "12px", objectFit: "cover" }} 
+                    />
+                    <div>
+                      <div style={{ fontWeight: 800, color: "#0f172a", marginBottom: "4px" }}>{hotel.name}</div>
+                      <div style={{ fontSize: "13px", color: "#64748b", display: "flex", alignItems: "center", gap: "4px" }}>
+                        <MapPin size={12} /> {hotel.city}, {hotel.country}
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <td style={{ padding: "20px 24px" }}>
+                  <span style={{ padding: "4px 12px", borderRadius: "100px", background: "#f1f5f9", fontSize: "12px", fontWeight: 700, color: "#475569" }}>
+                    {hotel.type}
+                  </span>
+                </td>
+                <td style={{ padding: "20px 24px" }}>
+                  <div style={{ fontSize: "14px", fontWeight: 700, color: "#0f172a" }}>
+                    {hotel.rooms?.reduce((acc, room) => acc + (room.totalRooms || 0), 0) || 0} Phòng
+                  </div>
+                  <div style={{ fontSize: "12px", color: "#64748b" }}>({hotel.rooms?.length || 0} Loại)</div>
+                </td>
+                <td style={{ padding: "20px 24px" }}>
+                  <div style={{ fontWeight: 800, color: "#0d9488" }}>
+                    {(() => {
+                      const prices = hotel.rooms?.filter(r => r.basePrice && !isNaN(Number(r.basePrice))).map(r => Number(r.basePrice)) || [];
+                      return prices.length > 0 ? `₫${Math.min(...prices).toLocaleString()}` : "Chưa có giá";
+                    })()}
+                  </div>
+                </td>
+                <td style={{ padding: "20px 24px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "4px", color: "#f59e0b", fontWeight: 700, fontSize: "14px" }}>
+                    <Star size={14} fill="#f59e0b" /> {hotel.rating}
+                  </div>
+                </td>
+                <td style={{ padding: "20px 24px", textAlign: "right" }}>
+                  <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}>
+                    <Link href={`/homestays/${hotel.id}`} target="_blank" style={{ width: "36px", height: "36px", borderRadius: "10px", background: "#f0fdf4", border: "1px solid #dcfce7", display: "flex", alignItems: "center", justifyContent: "center", color: "#0d9488" }} title="Xem trang web">
+                      <Eye size={16} />
+                    </Link>
+                    <Link href={`/admin/hotels/${hotel.id}`} style={{ width: "36px", height: "36px", borderRadius: "10px", background: "#f8fafc", border: "1px solid #e2e8f0", display: "flex", alignItems: "center", justifyContent: "center", color: "#64748b" }} title="Chỉnh sửa">
+                      <Edit size={16} />
+                    </Link>
+                    <button 
+                      onClick={() => handleDelete(hotel.id)}
+                      style={{ width: "36px", height: "36px", borderRadius: "10px", background: "#fef2f2", border: "1px solid #fee2e2", display: "flex", alignItems: "center", justifyContent: "center", color: "#ef4444", cursor: "pointer" }}
+                      title="Xóa"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {/* PAGINATION */}
+        {totalPages > 1 && (
+          <div style={{ padding: "20px 24px", background: "#f8fafc", borderTop: "1px solid #f1f5f9", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div style={{ fontSize: "14px", color: "#64748b", fontWeight: 500 }}>
+              Hiển thị {(currentPage - 1) * itemsPerPage + 1} - {Math.min(currentPage * itemsPerPage, filteredHotels.length)} trong số {filteredHotels.length} cơ sở
+            </div>
+            <div style={{ display: "flex", gap: "8px" }}>
+              <button 
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage(prev => prev - 1)}
+                style={{ padding: "8px 16px", borderRadius: "8px", border: "1px solid #e2e8f0", background: "#fff", cursor: currentPage === 1 ? "not-allowed" : "pointer", opacity: currentPage === 1 ? 0.5 : 1, fontWeight: 600, fontSize: "14px" }}
+              >
+                Trước
+              </button>
+              {[...Array(totalPages)].map((_, i) => (
                 <button 
-                  onClick={() => handleDelete(hotel.id)}
-                  style={{ width: "36px", height: "36px", borderRadius: "10px", background: "#fff", border: "none", display: "flex", alignItems: "center", justifyContent: "center", color: "#ef4444", cursor: "pointer", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}
-                  title="Xóa"
+                  key={i}
+                  onClick={() => setCurrentPage(i + 1)}
+                  style={{ 
+                    width: "36px", height: "36px", borderRadius: "8px", border: "1px solid", 
+                    borderColor: currentPage === i + 1 ? "#0d9488" : "#e2e8f0",
+                    background: currentPage === i + 1 ? "#0d9488" : "#fff",
+                    color: currentPage === i + 1 ? "#fff" : "#64748b",
+                    fontWeight: 700, cursor: "pointer"
+                  }}
                 >
-                  <Trash2 size={16} />
+                  {i + 1}
                 </button>
-              </div>
-              <div style={{ position: "absolute", bottom: "12px", left: "12px", background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)", padding: "4px 12px", borderRadius: "100px", color: "#fff", fontSize: "12px", fontWeight: 700 }}>
-                {hotel.type}
-              </div>
-            </div>
-            <div style={{ padding: "24px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
-                <h3 style={{ fontSize: "18px", fontWeight: 800, color: "#0f172a" }}>{hotel.name}</h3>
-                <div style={{ display: "flex", alignItems: "center", gap: "4px", color: "#f59e0b", fontWeight: 700 }}>
-                  <Star size={16} fill="#f59e0b" /> {hotel.rating}
-                </div>
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "#64748b", fontSize: "14px", marginBottom: "20px" }}>
-                <MapPin size={14} /> {hotel.city}, {hotel.country}
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #f1f5f9", paddingTop: "16px" }}>
-                <div style={{ fontSize: "13px", color: "#64748b", fontWeight: 600 }}>{hotel.rooms?.length || 0} Loại phòng</div>
-                <Link href={`/homestays/${hotel.id}`} target="_blank" style={{ display: "flex", alignItems: "center", gap: "4px", color: "#0d9488", fontWeight: 700, fontSize: "14px", textDecoration: "none" }}>
-                  Xem trang web <Eye size={14} />
-                </Link>
-              </div>
+              ))}
+              <button 
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage(prev => prev + 1)}
+                style={{ padding: "8px 16px", borderRadius: "8px", border: "1px solid #e2e8f0", background: "#fff", cursor: currentPage === totalPages ? "not-allowed" : "pointer", opacity: currentPage === totalPages ? 0.5 : 1, fontWeight: 600, fontSize: "14px" }}
+              >
+                Sau
+              </button>
             </div>
           </div>
-        ))}
+        )}
       </div>
-      
       <style>{`
         @keyframes pulse {
           0% { opacity: 0.6; }
