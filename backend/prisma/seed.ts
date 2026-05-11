@@ -7,6 +7,7 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('Bắt đầu dọn dẹp dữ liệu cũ (Xóa Hotel, Room, Tour, User)...');
   await prisma.review.deleteMany();
+  await prisma.payment.deleteMany();
   await prisma.bookingTour.deleteMany();
   await prisma.bookingRoom.deleteMany();
   await prisma.booking.deleteMany();
@@ -83,6 +84,7 @@ async function main() {
         'https://images.unsplash.com/photo-1555400038-63f5ba517a47?w=800&q=80',
         'https://images.unsplash.com/photo-1572791870574-8a7b7b3d2dd3?w=800&q=80'
       ],
+      moodTags: ['Relaxed', 'Peaceful'],
       amenities: ['Wifi tốc độ cao', 'Bếp tiện nghi', 'Bãi đậu xe miễn phí'],
       rooms: [
         { name: 'Bungalow View Núi', basePrice: 1500000, capacity: 2, totalRooms: 10 },
@@ -105,6 +107,7 @@ async function main() {
         'https://images.unsplash.com/photo-1554995207-c18c203602cb?w=800&q=80',
         'https://images.unsplash.com/photo-1510798831971-661eb04b3739?w=800&q=80'
       ],
+      moodTags: ['Romantic', 'Peaceful'],
       amenities: ['Wifi tốc độ cao', 'Hồ bơi vô cực', 'Smart TV', 'Điều hòa nhiệt độ'],
       rooms: [
         { name: 'Phòng Cổ Điển', basePrice: 850000, capacity: 2, totalRooms: 5 },
@@ -127,6 +130,7 @@ async function main() {
         'https://images.unsplash.com/photo-1484154218962-a197022b5858?w=800&q=80',
         'https://images.unsplash.com/photo-1505691938895-1758d7def511?w=800&q=80'
       ],
+      moodTags: ['Happy', 'Relaxed'],
       amenities: ['Wifi tốc độ cao', 'Hồ bơi vô cực', 'Lễ tân 24/7', 'Smart TV'],
       rooms: [
         { name: 'Superior Sea View', basePrice: 1200000, capacity: 2, totalRooms: 20 },
@@ -149,6 +153,7 @@ async function main() {
         'https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?w=800&q=80',
         'https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=800&q=80'
       ],
+      moodTags: ['Melancholy', 'Peaceful'],
       amenities: ['Wifi tốc độ cao', 'Bếp tiện nghi', 'Bãi đậu xe miễn phí'],
       rooms: [
         { name: 'Nhà Gỗ Nhỏ', basePrice: 650000, capacity: 2, totalRooms: 8 },
@@ -171,6 +176,7 @@ async function main() {
         rating: h.rating,
         ownerId: h.ownerId,
         images: h.images,
+        moodTags: (h as any).moodTags,
       },
     });
 
@@ -222,6 +228,7 @@ async function main() {
         'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=1200&q=80',
         'https://images.unsplash.com/photo-1574872288019-9eb101b4c95f?w=800&q=80'
       ],
+      moodTags: ['Adventurous', 'Happy'],
       includes: ['Xe máy di chuyển', 'Homestay 2 đêm', 'Các bữa ăn theo lịch trình', 'Vé tham quan'],
       excludes: ['Chi phí cá nhân', 'Đồ uống gọi thêm'],
       itineraries: [
@@ -242,6 +249,7 @@ async function main() {
         'https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?w=1200&q=80',
         'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=800&q=80'
       ],
+      moodTags: ['Adventurous', 'Peaceful'],
       includes: ['Hướng dẫn viên người bản địa', 'Porter mang đồ', 'Giấy phép leo núi', 'Trại ngủ đêm trên núi', 'Các bữa ăn'],
       excludes: ['Túi ngủ cá nhân (có thể thuê thêm)', 'Cáp treo chiều về (nếu cần)'],
       itineraries: [
@@ -261,6 +269,7 @@ async function main() {
         'https://images.unsplash.com/photo-1555400038-63f5ba517a47?w=1200&q=80',
         'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80'
       ],
+      moodTags: ['Romantic', 'Relaxed'],
       includes: ['Phòng suite trên du thuyền', '4 bữa ăn cao cấp', 'Vé chèo Kayak', 'Trà chiều Sunset', 'Hướng dẫn viên'],
       excludes: ['Đồ uống có cồn', 'Dịch vụ Spa'],
       itineraries: [
@@ -280,6 +289,7 @@ async function main() {
         'https://images.unsplash.com/photo-1599839619722-39751411ea63?w=1200&q=80',
         'https://images.unsplash.com/photo-1572791870574-8a7b7b3d2dd3?w=800&q=80'
       ],
+      moodTags: ['Happy', 'Peaceful'],
       includes: ['Thuyền tham quan chợ nổi', 'Xe đưa đón tại Cần Thơ', 'Bữa trưa đặc sản', 'Trái cây miệt vườn'],
       excludes: ['VAT', 'Tiền tip cho HDV'],
       itineraries: [
@@ -301,6 +311,7 @@ async function main() {
         images: t.images,
         includes: t.includes,
         excludes: t.excludes,
+        moodTags: (t as any).moodTags,
       }
     });
 

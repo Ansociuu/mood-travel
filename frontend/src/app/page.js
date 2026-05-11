@@ -8,9 +8,12 @@ import Homestays from "@/components/Homestays";
 import Testimonials from "@/components/Testimonials";
 import CtaSection from "@/components/CtaSection";
 import Footer from "@/components/Footer";
+import MoodSelector from "@/components/MoodSelector";
+import MoodRecommendations from "@/components/MoodRecommendations";
 
 export default function Home() {
   const [showBackTop, setShowBackTop] = useState(false);
+  const [selectedMood, setSelectedMood] = useState(null);
 
   useEffect(() => {
     const onScroll = () => {
@@ -32,6 +35,8 @@ export default function Home() {
 
       <Navbar />
       <HeroSection />
+      <MoodSelector onMoodSelect={setSelectedMood} selectedMood={selectedMood} />
+      <MoodRecommendations mood={selectedMood} />
       <Destinations />
       <FeatureBanner />
       <Homestays />

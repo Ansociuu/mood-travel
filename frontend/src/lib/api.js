@@ -107,6 +107,10 @@ export const paymentsApi = {
     body: { bookingId },
   }),
   verifyVNPayReturn: (queryString) => apiRequest(`/payments/vnpay/vnpay_return?${queryString}`),
+  createPayosUrl: (bookingId) => apiRequest('/payments/payos/create-url', {
+    method: 'POST',
+    body: { bookingId },
+  }),
 };
 
 export const uploadApi = {

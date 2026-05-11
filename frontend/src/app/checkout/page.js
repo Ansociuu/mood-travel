@@ -83,19 +83,26 @@ export default function CheckoutPage() {
 
       const newBooking = await bookingsApi.create(payload);
 
-      // 2. Create VNPay URL if paymentMethod is vnpay
+      // 2. Handle Payment
       if (paymentMethod === 'vnpay') {
         const vnpayResponse = await paymentsApi.createVNPayUrl(newBooking.id);
         if (vnpayResponse && vnpayResponse.paymentUrl) {
-          // Clear pending order
           sessionStorage.removeItem('pendingBooking');
           window.location.href = vnpayResponse.paymentUrl;
         } else {
           alert('Không thể tạo link thanh toán VNPay');
           setProcessing(false);
         }
+      } else if (paymentMethod === 'payos') {
+        const payosResponse = await paymentsApi.createPayosUrl(newBooking.id);
+        if (payosResponse && payosResponse.paymentUrl) {
+          sessionStorage.removeItem('pendingBooking');
+          window.location.href = payosResponse.paymentUrl;
+        } else {
+          alert('Không thể tạo link thanh toán PayOS');
+          setProcessing(false);
+        }
       } else {
-        // If other methods are added later
         sessionStorage.removeItem('pendingBooking');
         router.push('/success?bookingId=' + newBooking.id);
       }
@@ -124,7 +131,7 @@ export default function CheckoutPage() {
       <div style={{ height: "72px" }}></div>
 
       <main style={{ maxWidth: "1200px", margin: "0 auto", padding: "40px 20px 80px" }}>
-        
+
         {/* BREADCRUMB / BACK */}
         <div style={{ marginBottom: "32px" }}>
           <button onClick={() => router.back()} style={{ display: "flex", alignItems: "center", gap: "8px", background: "none", border: "none", color: "#64748b", fontSize: "15px", fontWeight: 600, cursor: "pointer" }}>
@@ -133,7 +140,7 @@ export default function CheckoutPage() {
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr 400px", gap: "64px" }}>
-          
+
           {/* LEFT COL: FORM */}
           <div>
             <h1 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: "32px", fontWeight: 800, color: "#0f172a", marginBottom: "40px" }}>
@@ -167,11 +174,16 @@ export default function CheckoutPage() {
               {/* PAYMENT METHODS */}
               <div style={{ marginBottom: "48px" }}>
                 <h2 style={{ fontSize: "20px", fontWeight: 800, color: "#0f172a", marginBottom: "24px" }}>Phương thức thanh toán</h2>
-                
+
                 <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                   <div style={methodStyle(paymentMethod === "vnpay")} onClick={() => setPaymentMethod("vnpay")}>
                     <Landmark size={24} color={paymentMethod === "vnpay" ? "#0d9488" : "#64748b"} />
                     <span style={{ fontSize: "16px", fontWeight: 600, color: "#0f172a" }}>Thanh toán qua VNPay</span>
+                  </div>
+
+                  <div style={methodStyle(paymentMethod === "payos")} onClick={() => setPaymentMethod("payos")}>
+                    <Wallet size={24} color={paymentMethod === "payos" ? "#0d9488" : "#64748b"} />
+                    <span style={{ fontSize: "16px", fontWeight: 600, color: "#0f172a" }}>Chuyển khoản VietQR</span>
                   </div>
 
                   <div style={methodStyle(paymentMethod === "card")} onClick={() => alert("Phương thức này đang phát triển")}>
@@ -214,7 +226,7 @@ export default function CheckoutPage() {
               </div>
 
               <h2 style={{ fontSize: "20px", fontWeight: 800, color: "#0f172a", marginBottom: "20px" }}>Chi tiết giá</h2>
-              
+
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "16px", fontSize: "15px", color: "#475569", fontWeight: 500 }}>
                 <span>₫{Number(order.priceAtBooking).toLocaleString()} x {order.quantity} {order.type === 'hotel' ? 'đêm' : 'khách'}</span>
                 <span>₫{Number(order.totalAmount).toLocaleString()}</span>

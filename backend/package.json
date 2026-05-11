@@ -30,6 +30,7 @@
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/swagger": "^11.4.2",
+    "@payos/node": "^2.0.5",
     "@prisma/client": "^6.2.1",
     "@sendgrid/mail": "^8.1.6",
     "bcrypt": "^6.0.0",
@@ -48,7 +49,8 @@
     "resend": "^6.12.3",
     "rxjs": "^7.8.1",
     "streamifier": "^0.1.1",
-    "swagger-ui-express": "^5.0.1"
+    "swagger-ui-express": "^5.0.1",
+    "vnpay": "^2.5.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
