@@ -36,6 +36,7 @@ model User {
   // Relationships
   bookings      Booking[]
   reviews       Review[]
+  wishlists     Wishlist[]
   ownedHotels   Hotel[]   @relation("HotelOwner")
   ownedTours    Tour[]    @relation("TourOwner")
   sessions      Session[]
@@ -81,6 +82,7 @@ model Hotel {
   amenities   HotelAmenity[]
   bookings    Booking[]
   reviews     Review[]
+  wishlists   Wishlist[]
 }
 
 model Amenity {
@@ -224,6 +226,19 @@ model Review {
   createdAt DateTime @default(now())
 }
 
+model Wishlist {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  hotelId   String?
+  hotel     Hotel?    @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  tourId    String?
+  tour      Tour?     @relation(fields: [tourId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, hotelId, tourId])
+}
+
 model Coupon {
   id            String   @id @default(cuid())
   code          String   @unique
@@ -276,6 +291,7 @@ model Tour {
   bookings        Booking[]
   bookingTours    BookingTour[]
   reviews         Review[]
+  wishlists       Wishlist[]
 }
 
 model TourItinerary {

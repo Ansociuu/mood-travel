@@ -6,7 +6,7 @@ import Footer from "@/components/Footer";
 import TourCard from "@/components/TourCard";
 import SkeletonCard from "@/components/SkeletonCard";
 import SingleDatePicker from "@/components/SingleDatePicker";
-import { toursApi } from "@/lib/api";
+import { toursApi, wishlistApi } from "@/lib/api";
 import { Search, Filter, SlidersHorizontal, ArrowDownAZ, MapPin, Calendar, Users, Tent } from "lucide-react";
 
 export default function ToursPage() {
@@ -49,10 +49,38 @@ export default function ToursPage() {
         setLoading(false);
       }
     };
+
+    const fetchWishlist = async () => {
+      if (localStorage.getItem("token")) {
+        try {
+          const data = await wishlistApi.getMyWishlist();
+          const wishMap = {};
+          data.forEach(item => {
+            if (item.tourId) wishMap[item.tourId] = true;
+          });
+          setWishlist(wishMap);
+        } catch (err) {
+          console.error(err);
+        }
+      }
+    };
+
     fetchTours();
+    fetchWishlist();
   }, []);
 
-  const toggleWishlist = (id) => setWishlist(p => ({ ...p, [id]: !p[id] }));
+  const toggleWishlist = async (id) => {
+    if (!localStorage.getItem("token")) {
+      router.push("/login?redirect=" + window.location.pathname);
+      return;
+    }
+    try {
+      const res = await wishlistApi.toggle({ tourId: id });
+      setWishlist(p => ({ ...p, [id]: res.status === 'liked' }));
+    } catch (err) {
+      alert(err.message);
+    }
+  };
 
   const handleRegionChange = (val) => {
     setRegionFilters(p => p.includes(val) ? p.filter(x => x !== val) : [...p, val]);

@@ -6,7 +6,7 @@ import Footer from "@/components/Footer";
 import HotelCard from "@/components/HotelCard";
 import SkeletonCard from "@/components/SkeletonCard";
 import DatePicker from "@/components/DatePicker";
-import { hotelsApi } from "@/lib/api";
+import { hotelsApi, wishlistApi } from "@/lib/api";
 import dynamic from "next/dynamic";
 import { Search, MapPin, Bed, Bath, Users, Star, Heart, Calendar, Filter, Map, List, Home, Tent, Building2, Trees } from "lucide-react";
 
@@ -46,7 +46,7 @@ export default function HomestaysPage() {
           price: h.rooms?.[0]?.basePrice?.toString() || "0",
           per: "đêm",
           rating: h.rating,
-          beds: h.rooms?.[0]?.capacity || 2, // Tạm lấy theo số người
+          beds: h.rooms?.[0]?.capacity || 2,
           baths: 1,
           guests: h.rooms?.[0]?.capacity || 2,
           lat: h.lat,
@@ -61,7 +61,24 @@ export default function HomestaysPage() {
         setLoading(false);
       }
     };
+
+    const fetchWishlist = async () => {
+      if (localStorage.getItem("token")) {
+        try {
+          const data = await wishlistApi.getMyWishlist();
+          const wishMap = {};
+          data.forEach(item => {
+            if (item.hotelId) wishMap[item.hotelId] = true;
+          });
+          setWishlist(wishMap);
+        } catch (err) {
+          console.error(err);
+        }
+      }
+    };
+
     fetchHomestays();
+    fetchWishlist();
   }, []);
 
   // Advanced Filter Modal states
@@ -76,7 +93,18 @@ export default function HomestaysPage() {
   const filteredLocations = Array.from(new Set(homestays.map(h => h.location))).filter(loc => loc.toLowerCase().includes(searchQuery.toLowerCase()) && searchQuery);
   const filteredHotelNames = homestays.filter(h => h.name.toLowerCase().includes(searchQuery.toLowerCase()) && searchQuery);
 
-  const toggleWishlist = (id) => setWishlist(p => ({ ...p, [id]: !p[id] }));
+  const toggleWishlist = async (id) => {
+    if (!localStorage.getItem("token")) {
+      router.push("/login?redirect=" + window.location.pathname);
+      return;
+    }
+    try {
+      const res = await wishlistApi.toggle({ hotelId: id });
+      setWishlist(p => ({ ...p, [id]: res.status === 'liked' }));
+    } catch (err) {
+      alert(err.message);
+    }
+  };
 
   const parsePrice = (priceStr) => parseInt(priceStr.replace(/,/g, ''));
 

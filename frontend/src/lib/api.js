@@ -44,23 +44,16 @@ export const authApi = {
     method: 'POST',
     body: userData,
   }),
-  verifyOtp: (email, token) => apiRequest('/auth/verify', {
-    method: 'POST',
-    body: { email, token },
-  }),
   getMe: () => apiRequest('/auth/me'),
-  forgotPassword: (email) => apiRequest('/auth/forgot-password', {
-    method: 'POST',
-    body: { email },
-  }),
-  resetPassword: (email, token, newPassword) => apiRequest('/auth/reset-password', {
-    method: 'POST',
-    body: { email, token, newPassword },
-  }),
   updateMe: (userData) => apiRequest('/users/me', {
     method: 'PATCH',
     body: userData,
   }),
+  changePassword: (passwordData) => apiRequest('/users/change-password', {
+    method: 'PATCH',
+    body: passwordData,
+  }),
+  getStats: () => apiRequest('/users/stats'),
 };
 
 export const hotelsApi = {
@@ -69,10 +62,6 @@ export const hotelsApi = {
     return apiRequest(`/hotels${query ? `?${query}` : ''}`);
   },
   getById: (id) => apiRequest(`/hotels/${id}`),
-};
-
-export const roomsApi = {
-  getByHotel: (hotelId) => apiRequest(`/rooms/hotel/${hotelId}`),
 };
 
 export const toursApi = {
@@ -89,10 +78,27 @@ export const bookingsApi = {
     body: bookingData,
   }),
   getMyBookings: () => apiRequest('/bookings/me'),
-  getById: (id) => apiRequest(`/bookings/${id}`),
   cancel: (id) => apiRequest(`/bookings/${id}/cancel`, {
     method: 'PATCH',
   }),
+};
+
+export const reviewsApi = {
+  create: (reviewData) => apiRequest('/reviews', {
+    method: 'POST',
+    body: reviewData,
+  }),
+  getMyReviews: () => apiRequest('/reviews/me'),
+  getByHotel: (id) => apiRequest(`/reviews/hotel/${id}`),
+  getByTour: (id) => apiRequest(`/reviews/tour/${id}`),
+};
+
+export const wishlistApi = {
+  toggle: (data) => apiRequest('/wishlist/toggle', {
+    method: 'POST',
+    body: data,
+  }),
+  getMyWishlist: () => apiRequest('/wishlist/me'),
 };
 
 export const paymentsApi = {
