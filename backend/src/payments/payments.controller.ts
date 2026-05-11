@@ -11,7 +11,8 @@ export class PaymentsController {
   @Post('vnpay/create-url')
   createVNPayUrl(@Body() body: { bookingId: string }, @Req() req: Request) {
     const ipAddr = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
-    return this.paymentsService.createVNPayUrl(body.bookingId, ipAddr as string);
+    const origin = req.headers.origin || 'http://localhost:3000';
+    return this.paymentsService.createVNPayUrl(body.bookingId, ipAddr as string, origin);
   }
 
   @Get('vnpay/vnpay_return')

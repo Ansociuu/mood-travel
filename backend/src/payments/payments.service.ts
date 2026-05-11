@@ -6,14 +6,14 @@ import * as crypto from 'crypto';
 export class PaymentsService {
   constructor(private prisma: PrismaService) {}
 
-  async createVNPayUrl(bookingId: string, ipAddr: string) {
+  async createVNPayUrl(bookingId: string, ipAddr: string, origin: string) {
     const booking = await this.prisma.booking.findUnique({ where: { id: bookingId } });
     if (!booking) throw new BadRequestException('Booking not found');
 
     const tmnCode = process.env.VNP_TMNCODE || 'DUMMYCODE';
     const secretKey = process.env.VNP_HASHSECRET || 'DUMMYSECRET';
     const vnpUrl = process.env.VNP_URL || 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html';
-    const returnUrl = process.env.VNP_RETURNURL || 'http://localhost:3000/success';
+    const returnUrl = process.env.VNP_RETURNURL || `${origin}/success`;
 
     let vnp_Params: any = {};
     const date = new Date();
