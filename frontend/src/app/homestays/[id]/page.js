@@ -108,15 +108,21 @@ export default function HomestayDetailPage() {
     const nights = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1;
     
     const bookingData = {
-      hotel: homeBasic,
-      room: selectedRoom,
+      type: 'hotel',
+      hotelId: homeBasic.id,
+      hotelName: homeBasic.name,
+      roomId: selectedRoom?.id,
+      roomName: selectedRoom?.name,
+      quantity: 1, // Number of rooms
       guests: bookingGuests,
       checkIn: dateRange[0].startDate,
       checkOut: dateRange[0].endDate,
       nights: nights,
-      totalPrice: (selectedRoom?.basePrice || homeBasic.price) * nights
+      priceAtBooking: Number(selectedRoom?.basePrice || homeBasic.price),
+      totalAmount: Number(selectedRoom?.basePrice || homeBasic.price) * nights,
+      image: homeDetail.gallery[0]
     };
-    localStorage.setItem("pendingBooking", JSON.stringify(bookingData));
+    sessionStorage.setItem("pendingBooking", JSON.stringify(bookingData));
     router.push("/checkout");
   };
 

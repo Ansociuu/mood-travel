@@ -57,7 +57,7 @@ export default function TourDetailPage() {
       tourName: tour.name,
       checkIn: selectedAvail.startDate,
       quantity: bookingGuests,
-      priceAtBooking: displayPrice,
+      priceAtBooking: Number(displayPrice),
       totalAmount: Number(displayPrice) * bookingGuests,
       image: mainImg
     };
