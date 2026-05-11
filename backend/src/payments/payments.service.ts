@@ -33,13 +33,13 @@ export class PaymentsService {
     vnp_Params['vnp_IpAddr'] = ipAddr;
     vnp_Params['vnp_CreateDate'] = createDate;
 
-    const signData = this.sortAndStringify(vnp_Params);
+    const signData = this.sortAndStringify(vnp_Params, false);
     const hmac = crypto.createHmac('sha512', secretKey);
     const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex'); 
     
     vnp_Params['vnp_SecureHash'] = signed;
 
-    const paymentUrl = vnpUrl + '?' + this.sortAndStringify(vnp_Params);
+    const paymentUrl = vnpUrl + '?' + this.sortAndStringify(vnp_Params, true);
 
     // Create a pending Payment record
     await this.prisma.payment.create({
@@ -63,7 +63,7 @@ export class PaymentsService {
     delete vnp_Params['vnp_SecureHash'];
     delete vnp_Params['vnp_SecureHashType'];
 
-    const signData = this.sortAndStringify(vnp_Params);
+    const signData = this.sortAndStringify(vnp_Params, false);
 
     const secretKey = process.env.VNP_HASHSECRET || 'DUMMYSECRET';
     const hmac = crypto.createHmac('sha512', secretKey);
@@ -105,12 +105,15 @@ export class PaymentsService {
     }
   }
 
-  private sortAndStringify(obj: any) {
+  private sortAndStringify(obj: any, encode: boolean) {
     let keys = Object.keys(obj).sort();
     let qs: string[] = [];
     for (let key of keys) {
       if (obj[key] !== undefined && obj[key] !== null && obj[key] !== '') {
-        qs.push(encodeURIComponent(key) + '=' + encodeURIComponent(String(obj[key])).replace(/%20/g, '+'));
+        const val = encode 
+          ? encodeURIComponent(String(obj[key])).replace(/%20/g, '+')
+          : String(obj[key]);
+        qs.push(encodeURIComponent(key) + '=' + val);
       }
     }
     return qs.join('&');
