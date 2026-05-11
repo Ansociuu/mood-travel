@@ -3,6 +3,21 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
+// Fix BigInt and Decimal serialization
+(BigInt.prototype as any).toJSON = function () {
+  return this.toString();
+};
+
+// Handle Prisma Decimal serialization
+try {
+  const { Decimal } = require('@prisma/client/runtime/library');
+  (Decimal.prototype as any).toJSON = function () {
+    return this.toNumber();
+  };
+} catch (e) {
+  // Fallback if the path is different
+}
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 

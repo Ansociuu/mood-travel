@@ -184,7 +184,7 @@ export class AuthService {
       user = await this.prisma.user.create({
         data: {
           email,
-          name,
+          name: name || 'Khách hàng',
           avatar: picture,
           password: '', // Social users don't have a local password initially
           isVerified: true, // Social accounts are trusted
@@ -193,6 +193,15 @@ export class AuthService {
 
       // Gửi mail chào mừng cho người dùng mới từ Google
       this.mailService.sendWelcomeEmail(user.email, user.name || 'Khách hàng');
+    } else if (!user.name || !user.avatar) {
+      // Update name/avatar if missing
+      user = await this.prisma.user.update({
+        where: { id: user.id },
+        data: {
+          name: user.name || name || 'Khách hàng',
+          avatar: user.avatar || picture,
+        },
+      });
     }
 
     const payload = { email: user.email, sub: user.id, role: user.role };
@@ -241,5 +250,14 @@ export class AuthService {
         avatar: user.avatar,
       },
     };
+  }
+
+  async getMe(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+    if (!user) return null;
+    const { password: _, ...result } = user;
+    return result;
   }
 }

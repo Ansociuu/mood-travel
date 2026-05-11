@@ -8,7 +8,7 @@ import {
   User, ShoppingBag, LogOut, Camera, MapPin, Calendar, 
   Clock, CreditCard, ChevronRight, XCircle, CheckCircle, 
   AlertCircle, Heart, Star, Shield, LayoutDashboard,
-  TrendingUp, Wallet, Map
+  TrendingUp, Wallet, Map, PieChart, MessageSquare
 } from "lucide-react";
 import { authApi, bookingsApi, uploadApi, wishlistApi, reviewsApi } from "@/lib/api";
 
@@ -38,6 +38,11 @@ export default function DashboardPage() {
   const [wishlist, setWishlist] = useState([]);
   const [reviews, setReviews] = useState([]);
   const [listLoading, setListLoading] = useState(false);
+
+  // Review Modal state
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState(null);
+  const [reviewForm, setReviewForm] = useState({ rating: 5, comment: "" });
 
   useEffect(() => {
     const initDashboard = async () => {
@@ -170,7 +175,54 @@ export default function DashboardPage() {
     router.push("/login");
   };
 
+  const handleOpenReview = (booking) => {
+    setSelectedBooking(booking);
+    setShowReviewModal(true);
+  };
+
+  const handleSubmitReview = async (e) => {
+    e.preventDefault();
+    setUpdating(true);
+    try {
+      await reviewsApi.create({
+        bookingId: selectedBooking.id,
+        rating: reviewForm.rating,
+        comment: reviewForm.comment,
+        hotelId: selectedBooking.hotelId,
+        tourId: selectedBooking.tourId
+      });
+      alert("Cảm ơn bạn đã đánh giá!");
+      setShowReviewModal(false);
+      setReviewForm({ rating: 5, comment: "" });
+      fetchBookings();
+      fetchReviews();
+      const statsData = await authApi.getStats();
+      setStats(statsData);
+    } catch (err) {
+      alert("Lỗi: " + err.message);
+    } finally {
+      setUpdating(false);
+    }
+  };
+
   if (loading) return <div style={{ height: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#f8fafc" }}>Đang tải...</div>;
+
+  // Calculate chart data - Monthly Spending
+  const monthlySpending = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+  bookings.forEach(b => {
+    if (b.status !== 'CANCELLED') {
+      const month = new Date(b.createdAt).getMonth();
+      monthlySpending[month] += Number(b.totalAmount);
+    }
+  });
+  const maxSpending = Math.max(...monthlySpending, 1000000);
+
+  const tourCount = bookings.filter(b => b.tourId).length;
+  const hotelCount = bookings.filter(b => b.hotelId).length;
+  const totalTrips = tourCount + hotelCount || 1;
+
+  // Map of reviewed booking IDs to hide the button
+  const reviewedBookingIds = new Set(reviews.map(r => r.bookingId));
 
   const StatCard = ({ icon: Icon, label, value, color }) => (
     <div style={{ background: "#fff", padding: "24px", borderRadius: "20px", border: "1px solid rgba(0,0,0,0.05)", display: "flex", alignItems: "center", gap: "20px", boxShadow: "0 4px 20px rgba(0,0,0,0.02)" }}>
@@ -187,6 +239,16 @@ export default function DashboardPage() {
   return (
     <div style={{ background: "#f8fafc", minHeight: "100vh" }}>
       <Navbar />
+      <style>{`
+        .bar-tooltip {
+          pointer-events: none;
+        }
+        [group="chart-bar"]:hover .bar-tooltip {
+          opacity: 1 !important;
+          visibility: visible !important;
+          transform: translate(-50%, -4px) !important;
+        }
+      `}</style>
       <div style={{ height: "72px" }}></div>
 
       <main style={{ maxWidth: "1240px", margin: "40px auto", padding: "0 20px 80px" }}>
@@ -195,7 +257,7 @@ export default function DashboardPage() {
         <div style={{ marginBottom: "40px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div>
             <h1 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: "32px", fontWeight: 800, color: "#0f172a", marginBottom: "8px" }}>
-              Chào mừng trở lại, {user?.name?.split(' ').pop()}! 👋
+              Chào mừng trở lại, {user?.name ? user.name.split(' ').pop() : 'bạn'}! 👋
             </h1>
             <p style={{ fontSize: "16px", color: "#64748b", fontWeight: 500 }}>
               Đây là nơi quản lý các chuyến đi và trải nghiệm của bạn tại MoodTravel.
@@ -219,7 +281,7 @@ export default function DashboardPage() {
                     <input type="file" hidden onChange={handleAvatarChange} disabled={updating} />
                   </label>
                 </div>
-                <h3 style={{ fontSize: "17px", fontWeight: 800, color: "#0f172a", marginBottom: "4px" }}>{user?.name}</h3>
+                <h3 style={{ fontSize: "17px", fontWeight: 800, color: "#0f172a", marginBottom: "4px" }}>{user?.name || 'Khách hàng'}</h3>
                 <div style={{ display: "inline-flex", alignItems: "center", gap: "6px", padding: "4px 10px", background: "rgba(13,148,136,0.1)", color: "#0d9488", borderRadius: "100px", fontSize: "12px", fontWeight: 700 }}>
                   <Shield size={12} /> Thành viên Bạc
                 </div>
@@ -273,30 +335,64 @@ export default function DashboardPage() {
                     </div>
                     
                     {/* SVG Chart Placeholder */}
-                    <div style={{ height: "200px", width: "100%", position: "relative", display: "flex", alignItems: "flex-end", gap: "20px", padding: "0 10px" }}>
-                      {[40, 70, 45, 90, 65, 80, 50].map((h, i) => (
-                        <div key={i} style={{ flex: 1, position: "relative", display: "flex", flexDirection: "column", alignItems: "center", gap: "12px" }}>
-                          <div style={{ width: "100%", height: `${h}%`, background: i === 3 ? "#0d9488" : "rgba(13,148,136,0.2)", borderRadius: "8px 8px 4px 4px", transition: "all 0.3s ease" }}></div>
-                          <span style={{ fontSize: "12px", color: "#94a3b8", fontWeight: 700 }}>T{i+1}</span>
+                    <div style={{ height: "200px", width: "100%", position: "relative", display: "flex", alignItems: "flex-end", gap: "12px", padding: "0 10px" }}>
+                      {monthlySpending.map((amount, i) => (
+                        <div key={i} style={{ flex: 1, position: "relative", display: "flex", flexDirection: "column", alignItems: "center", gap: "8px", group: "chart-bar" }}>
+                          <div style={{ 
+                            position: "absolute", 
+                            bottom: "100%", 
+                            left: "50%", 
+                            transform: "translateX(-50%)", 
+                            background: "#0f172a", 
+                            color: "#fff", 
+                            padding: "4px 8px", 
+                            borderRadius: "6px", 
+                            fontSize: "10px", 
+                            fontWeight: 700, 
+                            marginBottom: "8px",
+                            opacity: 0,
+                            visibility: "hidden",
+                            transition: "all 0.2s",
+                            whiteSpace: "nowrap",
+                            zIndex: 10
+                          }} className="bar-tooltip">
+                            ₫{amount.toLocaleString()}
+                          </div>
+                          <div 
+                            onMouseEnter={(e) => e.currentTarget.previousSibling.style.opacity = 1}
+                            onMouseLeave={(e) => e.currentTarget.previousSibling.style.opacity = 0}
+                            style={{ 
+                              width: "100%", 
+                              height: `${(amount / maxSpending) * 90 + 5}%`, 
+                              background: i === new Date().getMonth() ? "linear-gradient(to top, #0d9488, #14b8a6)" : "rgba(13,148,136,0.15)", 
+                              borderRadius: "6px 6px 2px 2px", 
+                              transition: "all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)",
+                              minHeight: amount > 0 ? "16px" : "4px",
+                              cursor: "pointer"
+                            }}
+                          ></div>
+                          <span style={{ fontSize: "10px", color: "#94a3b8", fontWeight: 700 }}>T{i+1}</span>
                         </div>
                       ))}
                     </div>
                   </div>
 
-                  {/* QUICK INFO BOX */}
-                  <div style={{ background: "linear-gradient(135deg, #0d9488, #14b8a6)", borderRadius: "24px", padding: "32px", color: "#fff", position: "relative", overflow: "hidden" }}>
-                    <div style={{ position: "relative", zIndex: 2 }}>
-                      <h3 style={{ fontSize: "20px", fontWeight: 800, marginBottom: "16px" }}>Hạng thành viên</h3>
-                      <div style={{ fontSize: "32px", fontWeight: 800, marginBottom: "8px" }}>Silver Member</div>
-                      <p style={{ fontSize: "14px", opacity: 0.9, lineHeight: 1.6, marginBottom: "24px" }}>
-                        Bạn còn thiếu 3 chuyến đi nữa để thăng hạng Gold và nhận ưu đãi 15%.
-                      </p>
-                      <div style={{ width: "100%", height: "8px", background: "rgba(255,255,255,0.2)", borderRadius: "100px", marginBottom: "12px" }}>
-                        <div style={{ width: "70%", height: "100%", background: "#fff", borderRadius: "100px" }}></div>
+                  {/* PIE CHART BOX (NEW) */}
+                  <div style={{ background: "#fff", borderRadius: "24px", padding: "32px", border: "1px solid rgba(0,0,0,0.05)" }}>
+                    <h3 style={{ fontSize: "18px", fontWeight: 800, color: "#0f172a", marginBottom: "24px" }}>Sở thích du lịch</h3>
+                    <div style={{ display: "flex", alignItems: "center", gap: "32px" }}>
+                      <div style={{ width: "120px", height: "120px", borderRadius: "50%", background: `conic-gradient(#0d9488 ${(tourCount/totalTrips)*360}deg, #f59e0b 0deg)`, boxShadow: "inset 0 0 0 20px #fff" }}></div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                          <div style={{ width: "12px", height: "12px", borderRadius: "4px", background: "#0d9488" }}></div>
+                          <span style={{ fontSize: "13px", fontWeight: 700, color: "#475569" }}>Tour ({Math.round((tourCount/totalTrips)*100)}%)</span>
+                        </div>
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                          <div style={{ width: "12px", height: "12px", borderRadius: "4px", background: "#f59e0b" }}></div>
+                          <span style={{ fontSize: "13px", fontWeight: 700, color: "#475569" }}>Homestay ({Math.round((hotelCount/totalTrips)*100)}%)</span>
+                        </div>
                       </div>
-                      <div style={{ fontSize: "13px", fontWeight: 700 }}>7/10 chuyến đi hoàn thành</div>
                     </div>
-                    <MapPin size={120} style={{ position: "absolute", bottom: "-20px", right: "-20px", opacity: 0.1, transform: "rotate(-15deg)" }} />
                   </div>
                 </div>
               </div>
@@ -321,9 +417,22 @@ export default function DashboardPage() {
                         </div>
                         <div style={{ textAlign: "right" }}>
                           <div style={{ fontWeight: 800, color: "#0d9488", marginBottom: "4px" }}>₫{Number(b.totalAmount).toLocaleString()}</div>
-                          <span style={{ fontSize: "11px", fontWeight: 800, padding: "4px 8px", borderRadius: "6px", background: b.status === 'CONFIRMED' ? "#f0fdf4" : "#fffbeb", color: b.status === 'CONFIRMED' ? "#10b981" : "#f59e0b" }}>
-                            {b.status}
-                          </span>
+                          <div style={{ display: "flex", flexDirection: "column", gap: "8px", alignItems: "flex-end" }}>
+                            <span style={{ fontSize: "11px", fontWeight: 800, padding: "4px 8px", borderRadius: "6px", background: b.status === 'CONFIRMED' ? "#f0fdf4" : b.status === 'COMPLETED' ? "#f0f9ff" : "#fffbeb", color: b.status === 'CONFIRMED' ? "#10b981" : b.status === 'COMPLETED' ? "#0ea5e9" : "#f59e0b" }}>
+                              {b.status}
+                            </span>
+                            {b.status === 'COMPLETED' && !reviewedBookingIds.has(b.id) && (
+                              <button 
+                                onClick={() => handleOpenReview(b)}
+                                style={{ display: "flex", alignItems: "center", gap: "4px", padding: "6px 12px", borderRadius: "8px", border: "1px solid #0ea5e9", background: "#fff", color: "#0ea5e9", fontSize: "12px", fontWeight: 700, cursor: "pointer" }}
+                              >
+                                <MessageSquare size={14} /> Viết đánh giá
+                              </button>
+                            )}
+                            {reviewedBookingIds.has(b.id) && (
+                              <span style={{ fontSize: "12px", color: "#94a3b8", fontWeight: 600 }}>Đã đánh giá</span>
+                            )}
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -425,16 +534,19 @@ export default function DashboardPage() {
                   <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
                     {reviews.map(r => (
                       <div key={r.id} style={{ paddingBottom: "24px", borderBottom: "1px solid #f1f5f9" }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px" }}>
-                          <h4 style={{ fontSize: "16px", fontWeight: 800 }}>{r.tour?.name || r.hotel?.name}</h4>
+                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
+                          <h4 style={{ fontSize: "16px", fontWeight: 800, margin: 0 }}>{r.tour?.name || r.hotel?.name}</h4>
                           <div style={{ display: "flex", gap: "2px" }}>
                             {[...Array(5)].map((_, i) => (
                               <Star key={i} size={14} fill={i < r.rating ? "#f59e0b" : "none"} color={i < r.rating ? "#f59e0b" : "#cbd5e1"} />
                             ))}
                           </div>
                         </div>
-                        <p style={{ fontSize: "14px", color: "#475569", lineHeight: 1.6, margin: 0 }}>{r.comment}</p>
-                        <div style={{ fontSize: "12px", color: "#94a3b8", marginTop: "12px" }}>Đã viết vào {new Date(r.createdAt).toLocaleDateString()}</div>
+                        <div style={{ fontSize: "12px", color: "#64748b", marginBottom: "12px", fontWeight: 600 }}>
+                          Mã đặt chỗ: #{r.booking?.shortId} • Ngày đi: {new Date(r.booking?.createdAt).toLocaleDateString()}
+                        </div>
+                        <p style={{ fontSize: "14px", color: "#475569", lineHeight: 1.6, margin: 0, padding: "12px", background: "#f8fafc", borderRadius: "12px", borderLeft: "4px solid #0d9488" }}>"{r.comment}"</p>
+                        <div style={{ fontSize: "11px", color: "#94a3b8", marginTop: "12px", fontWeight: 700 }}>Đã viết vào {new Date(r.createdAt).toLocaleDateString()}</div>
                       </div>
                     ))}
                   </div>
@@ -447,6 +559,53 @@ export default function DashboardPage() {
       </main>
 
       <Footer />
+
+      {/* REVIEW MODAL */}
+      {showReviewModal && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: "20px" }}>
+          <div style={{ background: "#fff", borderRadius: "24px", padding: "32px", width: "100%", maxWidth: "500px", boxShadow: "0 20px 50px rgba(0,0,0,0.2)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
+              <h3 style={{ fontSize: "20px", fontWeight: 800, color: "#0f172a" }}>Viết đánh giá</h3>
+              <button onClick={() => setShowReviewModal(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "#64748b" }}><XCircle size={24} /></button>
+            </div>
+            <div style={{ marginBottom: "20px", padding: "16px", background: "#f8fafc", borderRadius: "16px", display: "flex", gap: "16px", alignItems: "center" }}>
+              <img src={selectedBooking?.tour?.images?.[0] || selectedBooking?.hotel?.images?.[0]} style={{ width: "60px", height: "60px", borderRadius: "12px", objectFit: "cover" }} />
+              <div>
+                <div style={{ fontSize: "14px", fontWeight: 800 }}>{selectedBooking?.tour?.name || selectedBooking?.hotel?.name}</div>
+                <div style={{ fontSize: "12px", color: "#64748b" }}>Mã đặt chỗ: #{selectedBooking?.shortId}</div>
+              </div>
+            </div>
+            <form onSubmit={handleSubmitReview}>
+              <div style={{ marginBottom: "24px" }}>
+                <label style={{ display: "block", fontSize: "14px", fontWeight: 700, color: "#475569", marginBottom: "12px" }}>Xếp hạng của bạn</label>
+                <div style={{ display: "flex", gap: "8px" }}>
+                  {[1, 2, 3, 4, 5].map(star => (
+                    <button key={star} type="button" onClick={() => setReviewForm({ ...reviewForm, rating: star })} style={{ background: "none", border: "none", cursor: "pointer" }}>
+                      <Star size={32} fill={star <= reviewForm.rating ? "#f59e0b" : "none"} color={star <= reviewForm.rating ? "#f59e0b" : "#cbd5e1"} />
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div style={{ marginBottom: "32px" }}>
+                <label style={{ display: "block", fontSize: "14px", fontWeight: 700, color: "#475569", marginBottom: "12px" }}>Chia sẻ trải nghiệm</label>
+                <textarea 
+                  value={reviewForm.comment}
+                  onChange={e => setReviewForm({ ...reviewForm, comment: e.target.value })}
+                  placeholder="Bạn thấy chuyến đi thế nào?..."
+                  style={{ width: "100%", height: "120px", padding: "16px", borderRadius: "16px", border: "1px solid #e2e8f0", outline: "none", fontSize: "15px", resize: "none" }}
+                  required
+                />
+              </div>
+              <div style={{ display: "flex", gap: "16px" }}>
+                <button type="button" onClick={() => setShowReviewModal(false)} style={{ flex: 1, padding: "14px", borderRadius: "12px", border: "1px solid #e2e8f0", background: "#fff", fontWeight: 700, cursor: "pointer" }}>Hủy</button>
+                <button type="submit" disabled={updating} style={{ flex: 2, padding: "14px", borderRadius: "12px", border: "none", background: "#0d9488", color: "#fff", fontWeight: 700, cursor: "pointer" }}>
+                  {updating ? "Đang gửi..." : "Gửi đánh giá"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

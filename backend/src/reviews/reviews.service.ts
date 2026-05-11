@@ -46,6 +46,7 @@ export class ReviewsService {
       include: {
         hotel: { select: { name: true, images: true } },
         tour: { select: { name: true, images: true } },
+        booking: { select: { shortId: true, createdAt: true } },
       },
       orderBy: { createdAt: 'desc' },
     });

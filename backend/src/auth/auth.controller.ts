@@ -48,8 +48,9 @@ export class AuthController {
   @ApiBearerAuth()
   @Get('me')
   @ApiOperation({ summary: 'Lấy thông tin tài khoản hiện tại' })
-  getProfile(@Request() req) {
-    return req.user;
+  async getProfile(@Request() req) {
+    const user = await this.authService.getMe(req.user.id);
+    return user;
   }
 
   @Get('google')
