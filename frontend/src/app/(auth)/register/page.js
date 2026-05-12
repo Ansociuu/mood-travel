@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Mail, Lock, Eye, EyeOff, User, Loader2, CheckCircle2 } from "lucide-react";
@@ -7,7 +7,7 @@ import { authApi } from "@/lib/api";
 import { useEffect } from "react";
 import LegalModal from "@/components/LegalModal";
 
-export default function RegisterPage() {
+function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -382,5 +382,13 @@ export default function RegisterPage() {
         </div>
       </LegalModal>
     </>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={<div style={{ padding: "40px", textAlign: "center" }}>Đang tải...</div>}>
+      <RegisterForm />
+    </Suspense>
   );
 }
