@@ -9,7 +9,7 @@ import SingleDatePicker from "@/components/SingleDatePicker";
 import { toursApi, wishlistApi } from "@/lib/api";
 import { Search, Filter, SlidersHorizontal, ArrowDownAZ, MapPin, Calendar, Users, Tent } from "lucide-react";
 
-export default function ToursPage() {
+function ToursContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [tours, setTours] = useState([]);
@@ -367,5 +367,15 @@ export default function ToursPage() {
 
       <Footer />
     </div>
+  );
+}
+
+import { Suspense } from "react";
+
+export default function ToursPage() {
+  return (
+    <Suspense fallback={<div style={{ padding: "100px", textAlign: "center" }}>Đang tải danh sách tour...</div>}>
+      <ToursContent />
+    </Suspense>
   );
 }

@@ -15,7 +15,7 @@ const MapComponent = dynamic(() => import('@/components/MapComponent'), {
   loading: () => <div style={{ height: "100%", width: "100%", background: "#f8fafc", borderRadius: "24px", display: "flex", alignItems: "center", justifyContent: "center", color: "#64748b" }}>Đang tải bản đồ...</div>
 });
 
-export default function HomestaysPage() {
+function HomestaysContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [wishlist, setWishlist] = useState({});
@@ -445,5 +445,15 @@ export default function HomestaysPage() {
 
       <Footer />
     </>
+  );
+}
+
+import { Suspense } from "react";
+
+export default function HomestaysPage() {
+  return (
+    <Suspense fallback={<div style={{ padding: "100px", textAlign: "center" }}>Đang tải danh sách chỗ ở...</div>}>
+      <HomestaysContent />
+    </Suspense>
   );
 }
