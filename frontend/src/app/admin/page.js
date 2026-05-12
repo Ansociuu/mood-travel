@@ -10,6 +10,7 @@ import { authApi, adminApi } from "@/lib/api";
 export default function AdminDashboard() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -23,6 +24,7 @@ export default function AdminDashboard() {
       }
     };
     fetchStats();
+    setMounted(true);
   }, []);
 
   const StatCard = ({ label, value, icon: Icon, trend, growth, color }) => (
@@ -47,13 +49,39 @@ export default function AdminDashboard() {
   if (!stats) return <div style={{ padding: "40px", textAlign: "center", color: "#ef4444" }}>Lỗi tải dữ liệu.</div>;
 
   return (
-    <div>
-      <div style={{ marginBottom: "32px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+    <>
+      <style jsx>{`
+        .stats-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 24px;
+          margin-bottom: 40px;
+        }
+        .dashboard-content-grid {
+          display: grid;
+          grid-template-columns: 2fr 1fr;
+          gap: 32px;
+        }
+        @media (max-width: 1280px) {
+          .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 1024px) {
+          .dashboard-content-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 640px) {
+          .stats-grid { grid-template-columns: 1fr; gap: 16px; }
+          .dashboard-header { flex-direction: column; align-items: flex-start !important; gap: 20px; }
+          .header-actions { width: 100%; }
+          .header-actions button { flex: 1; justify-content: center; }
+        }
+      `}</style>
+
+      <div className="dashboard-header" style={{ marginBottom: "32px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
           <h1 style={{ fontSize: "28px", fontWeight: 800, color: "#0f172a", marginBottom: "8px" }}>Tổng quan quản trị</h1>
           <p style={{ color: "#64748b", fontWeight: 500 }}>Chào mừng bạn quay lại! Dưới đây là tình hình kinh doanh của bạn.</p>
         </div>
-        <div style={{ display: "flex", gap: "12px" }}>
+        <div className="header-actions" style={{ display: "flex", gap: "12px" }}>
           <button style={{ padding: "10px 20px", borderRadius: "12px", border: "1px solid #e2e8f0", background: "#fff", color: "#0f172a", fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: "8px" }}>
             <Calendar size={18} /> 30 ngày qua
           </button>
@@ -64,7 +92,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* STATS GRID */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "24px", marginBottom: "40px" }}>
+      <div className="stats-grid">
         <StatCard 
           label="Tổng doanh thu" 
           value={`₫${Number(stats.revenue).toLocaleString()}`} 
@@ -99,7 +127,7 @@ export default function AdminDashboard() {
         />
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "32px" }}>
+      <div className="dashboard-content-grid">
         {/* RECENT BOOKINGS */}
         <div style={{ background: "#fff", borderRadius: "24px", padding: "32px", border: "1px solid rgba(0,0,0,0.05)" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
@@ -131,7 +159,7 @@ export default function AdminDashboard() {
                       </div>
                     </td>
                     <td style={{ padding: "16px 0", fontSize: "14px", fontWeight: 500 }}>{b.productName}</td>
-                    <td style={{ padding: "16px 0", fontSize: "14px", color: "#64748b" }}>{new Date(b.date).toLocaleDateString('vi-VN')}</td>
+                    <td style={{ padding: "16px 0", fontSize: "14px", color: "#64748b" }}>{mounted ? new Date(b.date).toLocaleDateString('vi-VN') : ""}</td>
                     <td style={{ padding: "16px 0", fontSize: "14px", fontWeight: 700 }}>₫{Number(b.amount).toLocaleString()}</td>
                     <td style={{ padding: "16px 0" }}>
                       <span style={{ fontSize: "11px", fontWeight: 800, padding: "4px 8px", borderRadius: "6px", background: "#f0fdf4", color: "#10b981" }}>{b.status}</span>
@@ -154,6 +182,6 @@ export default function AdminDashboard() {
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

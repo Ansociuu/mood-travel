@@ -35,6 +35,12 @@ export class UsersController {
     return this.usersService.getDashboardStats(req.user.id);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Patch('become-host')
+  becomeHost(@Request() req) {
+    return this.usersService.requestOwnerRole(req.user.id);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(id);
@@ -60,6 +66,13 @@ export class UsersController {
   @Patch(':id/verify')
   toggleVerify(@Param('id') id: string) {
     return this.usersService.toggleVerify(id);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @Patch(':id/verify-owner')
+  toggleVerifyOwner(@Param('id') id: string) {
+    return this.usersService.toggleVerifyOwner(id);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

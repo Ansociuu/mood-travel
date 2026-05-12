@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import AnimatedCounter from "./AnimatedCounter";
 import { stats } from "../data/mockData";
 import { Map, MapPin, Calendar, Clock, Users, Compass, Smile, Home, Star } from "lucide-react";
@@ -27,10 +28,17 @@ const StatIcon = ({ name }) => {
 };
 
 export default function HeroSection() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState("tour");
   const [searchFocus, setSearchFocus] = useState(false);
   const [bgIndex, setBgIndex] = useState(0);
+  
+  // Search inputs
   const [destQuery, setDestQuery] = useState("");
+  const [date, setDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [duration, setDuration] = useState("medium");
+  const [guests, setGuests] = useState(2);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -38,6 +46,21 @@ export default function HeroSection() {
     }, 5000);
     return () => clearInterval(interval);
   }, []);
+
+  const handleSearch = () => {
+    const params = new URLSearchParams();
+    if (destQuery) params.set("search", destQuery);
+    if (date) params.set("date", date);
+    
+    if (activeTab === "tour") {
+      if (duration) params.set("duration", duration);
+      router.push(`/tours?${params.toString()}`);
+    } else {
+      if (endDate) params.set("endDate", endDate);
+      if (guests) params.set("guests", guests);
+      router.push(`/homestays?${params.toString()}`);
+    }
+  };
 
   const glassCard = {
     background: "rgba(255,255,255,0.95)",
@@ -61,7 +84,6 @@ export default function HeroSection() {
         ))}
       </div>
 
-      {/* DARK OVERLAY - To keep white text readable on bright images */}
       <div style={{ position: "absolute", inset: 0, zIndex: -1, background: "linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.5) 60%, #f8fafc 100%)" }} />
 
       <div className="hero-text" style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: "rgba(255,255,255,0.2)", backdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,0.3)", borderRadius: "100px", padding: "6px 16px", marginBottom: "28px", fontSize: "13px", color: "#fff", fontWeight: 600 }}>
@@ -83,7 +105,7 @@ export default function HeroSection() {
       </p>
 
       {/* SEARCH BOX */}
-      <div className="hero-search" style={{ width: "100%", maxWidth: "860px", marginBottom: "60px", position: "relative", zIndex: 10 }}>
+      <div className="hero-search" style={{ width: "100%", maxWidth: "960px", marginBottom: "60px", position: "relative", zIndex: 10 }}>
         <div style={{ display: "flex", gap: "4px", marginBottom: "12px", justifyContent: "center" }}>
           {[["tour", "Tour du lịch", <Map size={16} />], ["homestay", "Homestay", <Home size={16} />]].map(([key, label, icon]) => (
             <button key={key} className="tab-btn" onClick={() => setActiveTab(key)} style={{ padding: "10px 24px", borderRadius: "12px", fontSize: "14px", fontWeight: 700, background: activeTab === key ? "#fff" : "rgba(255,255,255,0.2)", backdropFilter: activeTab === key ? "none" : "blur(10px)", border: activeTab === key ? "1px solid rgba(0,0,0,0.05)" : "1px solid rgba(255,255,255,0.3)", color: activeTab === key ? "#0f172a" : "#fff", display: "flex", alignItems: "center", gap: "8px", boxShadow: activeTab === key ? "0 4px 15px rgba(0,0,0,0.1)" : "none" }}>
@@ -93,19 +115,19 @@ export default function HeroSection() {
         </div>
 
         <div style={{ ...glassCard, padding: "8px", boxShadow: searchFocus ? "0 20px 60px rgba(0,0,0,0.1)" : "0 10px 40px rgba(0,0,0,0.08)", transition: "box-shadow 0.3s ease" }}>
-          <div className="search-grid" style={{ display: "grid", gridTemplateColumns: activeTab === "tour" ? "1fr 1fr 1fr auto" : "1fr 1fr 1fr auto", gap: "6px" }}>
+          <div className="search-grid" style={{ gridTemplateColumns: activeTab === "tour" ? "1fr 1fr 1fr auto" : "1fr 1fr 1fr 1fr auto" }}>
 
             <div style={{ position: "relative", background: "#f1f5f9", borderRadius: "14px", padding: "14px 18px", border: "1px solid rgba(0,0,0,0.02)" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "10px", color: "#0d9488", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "6px" }}>
                 <MapPin size={12} /> Điểm đến
               </div>
               <input
-                placeholder={`VD: ${textOptions[(bgIndex + 1) % textOptions.length]}...`}
+                placeholder={activeTab === "tour" ? "VD: Sapa..." : "VD: Phú Quốc..."}
                 value={destQuery}
                 onChange={(e) => setDestQuery(e.target.value)}
                 onFocus={() => setSearchFocus(true)}
-                onBlur={() => setSearchFocus(false)}
-                style={{ fontSize: "15px", fontWeight: 600, color: "#0f172a" }}
+                onBlur={() => setTimeout(() => setSearchFocus(false), 200)}
+                style={{ fontSize: "15px", fontWeight: 600, color: "#0f172a", width: "100%", background: "transparent", border: "none", outline: "none" }}
               />
 
               {searchFocus && (
@@ -132,16 +154,27 @@ export default function HeroSection() {
               <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "10px", color: "#0d9488", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "6px" }}>
                 <Calendar size={12} /> {activeTab === "tour" ? "Ngày đi" : "Nhận phòng"}
               </div>
-              <input type="date" style={{ fontSize: "15px", fontWeight: 600, color: "#0f172a" }} />
+              <input type="date" value={date} onChange={(e) => setDate(e.target.value)} style={{ fontSize: "15px", fontWeight: 600, color: "#0f172a", width: "100%", background: "transparent", border: "none", outline: "none" }} />
             </div>
+
+            {activeTab === "homestay" && (
+              <div style={{ background: "#f1f5f9", borderRadius: "14px", padding: "14px 18px", border: "1px solid rgba(0,0,0,0.02)" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "10px", color: "#0d9488", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "6px" }}>
+                  <Calendar size={12} /> Trả phòng
+                </div>
+                <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} style={{ fontSize: "15px", fontWeight: 600, color: "#0f172a", width: "100%", background: "transparent", border: "none", outline: "none" }} />
+              </div>
+            )}
 
             {activeTab === "tour" ? (
               <div style={{ background: "#f1f5f9", borderRadius: "14px", padding: "14px 18px", border: "1px solid rgba(0,0,0,0.02)" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "10px", color: "#0d9488", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "6px" }}>
                   <Clock size={12} /> Thời gian
                 </div>
-                <select style={{ fontSize: "15px", fontWeight: 600, color: "#0f172a" }}>
-                  <option>2 - 3 ngày</option><option>4 - 5 ngày</option><option>1 tuần</option><option>2 tuần+</option>
+                <select value={duration} onChange={(e) => setDuration(e.target.value)} style={{ fontSize: "15px", fontWeight: 600, color: "#0f172a", width: "100%", background: "transparent", border: "none", outline: "none" }}>
+                  <option value="short">1 - 2 ngày</option>
+                  <option value="medium">3 - 4 ngày</option>
+                  <option value="long">Trên 4 ngày</option>
                 </select>
               </div>
             ) : (
@@ -149,12 +182,15 @@ export default function HeroSection() {
                 <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "10px", color: "#0d9488", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "6px" }}>
                   <Users size={12} /> Số khách
                 </div>
-                <select style={{ fontSize: "15px", fontWeight: 600, color: "#0f172a" }}>
-                  <option>1 khách</option><option>2 khách</option><option>3 - 4 khách</option><option>5 - 6 khách</option><option>7+ khách</option>
+                <select value={guests} onChange={(e) => setGuests(parseInt(e.target.value))} style={{ fontSize: "15px", fontWeight: 600, color: "#0f172a", width: "100%", background: "transparent", border: "none", outline: "none" }}>
+                  <option value={1}>1 khách</option>
+                  <option value={2}>2 khách</option>
+                  <option value={4}>4 khách</option>
+                  <option value={6}>6+ khách</option>
                 </select>
               </div>
             )}
-            <button className="shimmer-btn search-btn-wrap" style={{ borderRadius: "14px", padding: "0 32px", color: "#fff", fontWeight: 800, fontSize: "15px", cursor: "pointer", minWidth: "140px", boxShadow: "0 4px 15px rgba(13,148,136,0.3)" }}>
+            <button onClick={handleSearch} className="shimmer-btn search-btn-wrap" style={{ borderRadius: "14px", padding: "0 32px", color: "#fff", fontWeight: 800, fontSize: "15px", cursor: "pointer", minWidth: "140px", boxShadow: "0 4px 15px rgba(13,148,136,0.3)" }}>
               Khám phá
             </button>
           </div>

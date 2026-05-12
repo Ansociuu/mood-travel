@@ -8,7 +8,7 @@ import {
   User, ShoppingBag, LogOut, Camera, MapPin, Calendar, 
   Clock, CreditCard, ChevronRight, XCircle, CheckCircle, 
   AlertCircle, Heart, Star, Shield, LayoutDashboard,
-  TrendingUp, Wallet, Map, PieChart, MessageSquare, Settings
+  TrendingUp, Wallet, Map, PieChart, MessageSquare, Settings, Building2
 } from "lucide-react";
 import { authApi, bookingsApi, uploadApi, wishlistApi, reviewsApi } from "@/lib/api";
 
@@ -141,6 +141,24 @@ export default function DashboardPage() {
     }
   };
 
+  const handleBecomeHost = async () => {
+    if (!confirm("Bạn có chắc chắn muốn trở thành đối tác kinh doanh của MoodTravel?")) return;
+    setUpdating(true);
+    try {
+      await authApi.becomeHost();
+      const refreshData = await authApi.refreshToken();
+      setUser(refreshData.user);
+      localStorage.setItem('token', refreshData.access_token);
+      localStorage.setItem('user', JSON.stringify(refreshData.user));
+      alert("Đã gửi yêu cầu! Tài khoản của bạn hiện là Chủ nhà (Owner). Vui lòng chờ Admin xác thực để bắt đầu kinh doanh.");
+      router.refresh();
+    } catch (err) {
+      alert("Lỗi: " + err.message);
+    } finally {
+      setUpdating(false);
+    }
+  };
+
   const handleAvatarChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -238,23 +256,66 @@ export default function DashboardPage() {
 
   return (
     <div style={{ background: "#f8fafc", minHeight: "100vh" }}>
-      <Navbar />
-      <style>{`
-        .bar-tooltip {
-          pointer-events: none;
+      <style jsx>{`
+        .dashboard-main { 
+          max-width: 1240px; 
+          margin: 40px auto; 
+          padding: 0 20px 80px; 
         }
-        [group="chart-bar"]:hover .bar-tooltip {
-          opacity: 1 !important;
-          visibility: visible !important;
-          transform: translate(-50%, -4px) !important;
+        .dashboard-header {
+          margin-bottom: 40px; 
+          display: flex; 
+          justify-content: space-between; 
+          align-items: center;
+        }
+        .dashboard-layout {
+          display: grid;
+          grid-template-columns: 280px 1fr;
+          gap: 40px;
+        }
+        .dash-stats-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 24px;
+        }
+        .dash-content-grid {
+          display: grid;
+          grid-template-columns: 1.5fr 1fr;
+          gap: 32px;
+        }
+        .sidebar-nav {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+        @media (max-width: 1024px) {
+          .dashboard-layout { grid-template-columns: 1fr; }
+          .sidebar-nav { 
+            flex-direction: row; 
+            overflow-x: auto; 
+            padding-bottom: 12px;
+            margin-bottom: 20px;
+          }
+          .sidebar-nav button, .sidebar-nav a { white-space: nowrap; width: auto !important; }
+          .dash-content-grid { grid-template-columns: 1fr; }
+          .dashboard-sidebar { position: static !important; }
+        }
+        @media (max-width: 768px) {
+          .dash-stats-grid { grid-template-columns: 1fr; }
+          .dashboard-header { flex-direction: column; align-items: flex-start; gap: 20px; }
+          .dashboard-header h1 { font-size: 24px !important; }
+          .booking-item { grid-template-columns: 1fr !important; }
+          .booking-img { width: 100% !important; height: 200px !important; }
+          .wishlist-grid { grid-template-columns: 1fr !important; }
         }
       `}</style>
+      <Navbar />
       <div style={{ height: "72px" }}></div>
 
-      <main style={{ maxWidth: "1240px", margin: "40px auto", padding: "0 20px 80px" }}>
+      <main className="dashboard-main">
         
         {/* HEADER SECTION */}
-        <div style={{ marginBottom: "40px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div className="dashboard-header">
           <div>
             <h1 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: "32px", fontWeight: 800, color: "#0f172a", marginBottom: "8px" }}>
               Chào mừng trở lại, {user?.name ? user.name.split(' ').pop() : 'bạn'}! 👋
@@ -268,10 +329,10 @@ export default function DashboardPage() {
           </button>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: "40px" }}>
+        <div className="dashboard-layout">
           
           {/* SIDEBAR */}
-          <aside>
+          <aside className="dashboard-sidebar">
             <div style={{ background: "#fff", borderRadius: "24px", padding: "24px", border: "1px solid rgba(0,0,0,0.05)", position: "sticky", top: "112px" }}>
               <div style={{ textAlign: "center", marginBottom: "32px", padding: "16px", background: "linear-gradient(180deg, #f0fdfa 0%, #ffffff 100%)", borderRadius: "20px" }}>
                 <div style={{ position: "relative", width: "90px", height: "90px", margin: "0 auto 16px" }}>
@@ -287,7 +348,7 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+              <div className="sidebar-nav">
                 {[
                   { id: "overview", label: "Tổng quan", icon: LayoutDashboard },
                   { id: "bookings", label: "Chuyến đi của tôi", icon: ShoppingBag },
@@ -310,7 +371,6 @@ export default function DashboardPage() {
                     <tab.icon size={18} /> {tab.label}
                   </button>
                 ))}
-                
                 {(user?.role === 'ADMIN' || user?.role === 'OWNER') && (
                   <Link 
                     href="/admin" 
@@ -326,6 +386,22 @@ export default function DashboardPage() {
                     <Settings size={18} /> Quản lý hệ thống
                   </Link>
                 )}
+
+                {user?.role === 'USER' && (
+                  <button 
+                    onClick={handleBecomeHost} 
+                    disabled={updating}
+                    style={{ 
+                      marginTop: "12px",
+                      display: "flex", alignItems: "center", gap: "12px", width: "100%", padding: "12px 16px", borderRadius: "12px", border: "none",
+                      background: "rgba(217,119,6,0.1)", 
+                      color: "#d97706", 
+                      fontWeight: 800, fontSize: "14px", cursor: "pointer", transition: "all 0.2s"
+                    }}
+                  >
+                    <Building2 size={18} /> {updating ? "Đang xử lý..." : "Trở thành chủ nhà"}
+                  </button>
+                )}
               </div>
             </div>
           </aside>
@@ -336,13 +412,13 @@ export default function DashboardPage() {
             {/* OVERVIEW TAB */}
             {activeTab === "overview" && (
               <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "24px" }}>
+                <div className="dash-stats-grid">
                   <StatCard icon={Map} label="Tổng chuyến đi" value={stats.totalBookings} color="#0d9488" />
-                  <StatCard icon={Wallet} label="Tổng chi tiêu" value={`₫${Number(stats.totalSpent).toLocaleString()}`} color="#f59e0b" />
+                  <StatCard icon={Wallet} label={user?.role === 'OWNER' ? "Doanh thu ước tính" : "Tổng chi tiêu"} value={`₫${Number(stats.totalSpent).toLocaleString()}`} color="#f59e0b" />
                   <StatCard icon={Heart} label="Yêu thích" value={stats.wishlistCount} color="#ef4444" />
                 </div>
 
-                <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: "32px" }}>
+                <div className="dash-content-grid">
                   {/* CHART BOX */}
                   <div style={{ background: "#fff", borderRadius: "24px", padding: "32px", border: "1px solid rgba(0,0,0,0.05)" }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "32px" }}>
@@ -425,8 +501,8 @@ export default function DashboardPage() {
                 ) : (
                   <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                     {bookings.map(b => (
-                      <div key={b.id} style={{ padding: "20px", border: "1px solid #f1f5f9", borderRadius: "16px", display: "grid", gridTemplateColumns: "80px 1fr auto", gap: "20px", alignItems: "center" }}>
-                        <img src={b.tour?.images?.[0] || b.hotel?.images?.[0]} style={{ width: "80px", height: "80px", borderRadius: "12px", objectFit: "cover" }} />
+                      <div key={b.id} className="booking-item" style={{ padding: "20px", border: "1px solid #f1f5f9", borderRadius: "16px", display: "grid", gridTemplateColumns: "80px 1fr auto", gap: "20px", alignItems: "center" }}>
+                        <img src={b.tour?.images?.[0] || b.hotel?.images?.[0]} className="booking-img" style={{ width: "80px", height: "80px", borderRadius: "12px", objectFit: "cover" }} />
                         <div>
                           <div style={{ fontWeight: 800, color: "#0f172a", marginBottom: "4px" }}>{b.tour?.name || b.hotel?.name}</div>
                           <div style={{ fontSize: "13px", color: "#64748b" }}>Mã: #{b.shortId} • {new Date(b.createdAt).toLocaleDateString()}</div>
@@ -466,7 +542,7 @@ export default function DashboardPage() {
                 ) : wishlist.length === 0 ? (
                   <div style={{ textAlign: "center", padding: "60px 0" }}>Chưa có mục nào được lưu.</div>
                 ) : (
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
+                  <div className="wishlist-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
                     {wishlist.map(w => {
                       const item = w.tour || w.hotel;
                       return (

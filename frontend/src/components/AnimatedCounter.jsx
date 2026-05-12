@@ -29,5 +29,8 @@ export default function AnimatedCounter({ target, suffix }) {
     return () => observer.disconnect();
   }, [target]);
 
-  return <span ref={ref}>{count.toLocaleString()}{suffix}</span>;
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  return <span ref={ref}>{mounted ? count.toLocaleString('vi-VN') : "0"}{suffix}</span>;
 }

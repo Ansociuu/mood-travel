@@ -113,6 +113,27 @@ export class UsersService {
     });
   }
 
+  async toggleVerifyOwner(id: string) {
+    const user = await this.prisma.user.findUnique({ where: { id } });
+    if (!user) {
+      throw new BadRequestException('Người dùng không tồn tại');
+    }
+    return this.prisma.user.update({
+      where: { id },
+      data: { isVerifiedOwner: !user.isVerifiedOwner }
+    });
+  }
+
+  async requestOwnerRole(id: string) {
+    return this.prisma.user.update({
+      where: { id },
+      data: { 
+        role: 'OWNER',
+        isVerifiedOwner: false // Default to unverified, needs Admin check
+      }
+    });
+  }
+
   async deleteUser(id: string) {
     return this.prisma.user.delete({ where: { id } });
   }

@@ -41,11 +41,11 @@ export default function Footer() {
           </div>
           <div key="Dịch vụ">
             <div style={{ fontSize: "13px", fontWeight: 800, color: "#0f172a", marginBottom: "20px", textTransform: "uppercase", letterSpacing: "0.5px" }}>Dịch vụ</div>
-            {["Homestay", "Khách sạn", "Vé máy bay", "Bảo hiểm du lịch"].map(link => (
-              <a key={link} href="#" style={{ display: "block", color: "#64748b", fontSize: "14px", fontWeight: 500, textDecoration: "none", marginBottom: "12px", transition: "color 0.2s" }}
+            {["Homestay", "Khách sạn", "Vé máy bay", "Trở thành đối tác"].map(link => (
+              <Link key={link} href={link === "Trở thành đối tác" ? "/become-a-host" : "#"} style={{ display: "block", color: "#64748b", fontSize: "14px", fontWeight: 500, textDecoration: "none", marginBottom: "12px", transition: "color 0.2s" }}
                 onMouseEnter={e => e.target.style.color = "#0d9488"}
                 onMouseLeave={e => e.target.style.color = "#64748b"}
-              >{link}</a>
+              >{link}</Link>
             ))}
           </div>
           <div key="Hỗ trợ">

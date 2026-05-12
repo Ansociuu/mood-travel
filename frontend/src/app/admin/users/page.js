@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { 
   Users, UserCheck, UserX, Shield, 
   Trash2, Mail, Calendar, Search, 
-  Filter, MoreVertical, CheckCircle2, XCircle
+  Filter, MoreVertical, CheckCircle2, XCircle, AlertCircle
 } from "lucide-react";
 import { usersApi } from "@/lib/api";
 
@@ -32,6 +32,15 @@ export default function AdminUsersPage() {
     try {
       await usersApi.toggleVerify(userId);
       setUsers(users.map(u => u.id === userId ? { ...u, isVerified: !u.isVerified } : u));
+    } catch (err) {
+      alert("Lỗi: " + err.message);
+    }
+  };
+
+  const handleToggleVerifyOwner = async (userId) => {
+    try {
+      await usersApi.toggleVerifyOwner(userId);
+      setUsers(users.map(u => u.id === userId ? { ...u, isVerifiedOwner: !u.isVerifiedOwner } : u));
     } catch (err) {
       alert("Lỗi: " + err.message);
     }
@@ -66,7 +75,20 @@ export default function AdminUsersPage() {
 
   return (
     <div>
-      <div style={{ marginBottom: "32px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <style jsx>{`
+        .users-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 32px;
+        }
+        @media (max-width: 640px) {
+          .users-header { flex-direction: column; align-items: flex-start; gap: 16px; }
+          .users-header h1 { font-size: 24px !important; }
+          .users-header p { font-size: 14px; }
+        }
+      `}</style>
+      <div className="users-header">
         <div>
           <h1 style={{ fontSize: "28px", fontWeight: 800, color: "#0f172a", marginBottom: "8px" }}>Quản lý Người dùng</h1>
           <p style={{ color: "#64748b", fontWeight: 500 }}>Quản lý quyền hạn, xác thực và thông tin thành viên trên hệ thống.</p>
@@ -109,6 +131,7 @@ export default function AdminUsersPage() {
                 <th style={{ textAlign: "left", padding: "20px 24px", fontSize: "13px", fontWeight: 700, color: "#64748b" }}>NGƯỜI DÙNG</th>
                 <th style={{ textAlign: "left", padding: "20px 24px", fontSize: "13px", fontWeight: 700, color: "#64748b" }}>VAI TRÒ</th>
                 <th style={{ textAlign: "left", padding: "20px 24px", fontSize: "13px", fontWeight: 700, color: "#64748b" }}>XÁC THỰC</th>
+                <th style={{ textAlign: "left", padding: "20px 24px", fontSize: "13px", fontWeight: 700, color: "#64748b" }}>XÁC THỰC CHỦ NHÀ</th>
                 <th style={{ textAlign: "center", padding: "20px 24px", fontSize: "13px", fontWeight: 700, color: "#64748b" }}>HOẠT ĐỘNG</th>
                 <th style={{ textAlign: "left", padding: "20px 24px", fontSize: "13px", fontWeight: 700, color: "#64748b" }}>NGÀY THAM GIA</th>
                 <th style={{ textAlign: "right", padding: "20px 24px", fontSize: "13px", fontWeight: 700, color: "#64748b" }}>THAO TÁC</th>
@@ -149,6 +172,19 @@ export default function AdminUsersPage() {
                       {u.isVerified ? <CheckCircle2 size={18} /> : <XCircle size={18} />}
                       <span style={{ fontSize: "13px", fontWeight: 600 }}>{u.isVerified ? "Đã xác thực" : "Chưa xác thực"}</span>
                     </div>
+                  </td>
+                  <td style={{ padding: "20px 24px" }}>
+                    {u.role === 'OWNER' ? (
+                      <div 
+                        onClick={() => handleToggleVerifyOwner(u.id)}
+                        style={{ display: "flex", alignItems: "center", gap: "6px", cursor: "pointer", color: u.isVerifiedOwner ? "#10b981" : "#d97706" }}
+                      >
+                        {u.isVerifiedOwner ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}
+                        <span style={{ fontSize: "13px", fontWeight: 600 }}>{u.isVerifiedOwner ? "Đã duyệt" : "Chờ duyệt"}</span>
+                      </div>
+                    ) : (
+                      <span style={{ color: "#94a3b8", fontSize: "13px" }}>N/A</span>
+                    )}
                   </td>
                   <td style={{ padding: "20px 24px", textAlign: "center" }}>
                     <div style={{ fontSize: "12px", fontWeight: 600, color: "#64748b" }}>

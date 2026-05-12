@@ -25,15 +25,38 @@ export default function ContactPage() {
 
   return (
     <div style={{ background: "#ffffff" }}>
+      <style jsx>{`
+        .contact-hero h1 { font-size: 48px; }
+        .contact-grid { 
+          display: grid; 
+          grid-template-columns: 1fr 1fr; 
+          gap: 64px; 
+          align-items: start; 
+        }
+        .info-blocks { 
+          display: grid; 
+          grid-template-columns: 1fr 1fr; 
+          gap: 24px; 
+        }
+        @media (max-width: 1024px) {
+          .contact-grid { gap: 32px; }
+        }
+        @media (max-width: 768px) {
+          .contact-hero h1 { font-size: 32px !important; }
+          .contact-grid { grid-template-columns: 1fr; gap: 48px; }
+          .info-blocks { grid-template-columns: 1fr; }
+          main { padding: 40px 20px 60px !important; }
+        }
+      `}</style>
       <Navbar />
       <div style={{ height: "72px" }}></div>
 
       <main style={{ maxWidth: "1200px", margin: "0 auto", padding: "64px 20px 80px" }}>
 
         {/* HERO SECTION */}
-        <div style={{ textAlign: "center", marginBottom: "80px" }}>
+        <div className="contact-hero" style={{ textAlign: "center", marginBottom: "80px" }}>
           <div style={{ fontSize: "14px", color: "#0d9488", fontWeight: 800, letterSpacing: "2px", textTransform: "uppercase", marginBottom: "16px" }}>HỖ TRỢ KHÁCH HÀNG 24/7</div>
-          <h1 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: "48px", fontWeight: 800, color: "#0f172a", marginBottom: "24px", letterSpacing: "-1.5px" }}>
+          <h1 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 800, color: "#0f172a", marginBottom: "24px", letterSpacing: "-1.5px" }}>
             Kết nối với VietJourney
           </h1>
           <p style={{ fontSize: "18px", color: "#64748b", maxWidth: "600px", margin: "0 auto", lineHeight: 1.6 }}>
@@ -42,7 +65,7 @@ export default function ContactPage() {
         </div>
 
         {/* 2-COL LAYOUT */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "64px", alignItems: "start" }} className="tours-layout-grid">
+        <div className="contact-grid">
 
           {/* LEFT: FORM */}
           <div style={{ background: "#f8fafc", padding: "40px", borderRadius: "24px", border: "1px solid rgba(0,0,0,0.05)" }}>
@@ -100,7 +123,7 @@ export default function ContactPage() {
           <div style={{ display: "flex", flexDirection: "column", gap: "40px" }}>
 
             {/* INFO BLOCKS */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px" }}>
+            <div className="info-blocks">
               <div style={{ display: "flex", gap: "16px" }}>
                 <div style={{ width: "48px", height: "48px", borderRadius: "12px", background: "rgba(13,148,136,0.1)", color: "#0d9488", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                   <MapPin size={24} />

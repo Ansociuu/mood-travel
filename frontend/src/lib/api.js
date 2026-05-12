@@ -54,6 +54,10 @@ export const authApi = {
     body: passwordData,
   }),
   getStats: () => apiRequest('/users/stats'),
+  becomeHost: () => apiRequest('/users/become-host', {
+    method: 'PATCH',
+  }),
+  refreshToken: () => apiRequest('/auth/refresh'),
 };
 
 export const hotelsApi = {
@@ -139,6 +143,9 @@ export const usersApi = {
     body: { role },
   }),
   toggleVerify: (id) => apiRequest(`/users/${id}/verify`, {
+    method: 'PATCH',
+  }),
+  toggleVerifyOwner: (id) => apiRequest(`/users/${id}/verify-owner`, {
     method: 'PATCH',
   }),
   deleteUser: (id) => apiRequest(`/users/${id}`, {

@@ -53,6 +53,14 @@ export class AuthController {
     return user;
   }
 
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @Get('refresh')
+  @ApiOperation({ summary: 'Làm mới token và thông tin người dùng' })
+  refreshToken(@Request() req) {
+    return this.authService.refreshToken(req.user.id);
+  }
+
   @Get('google')
   @UseGuards(AuthGuard('google'))
   @ApiOperation({ summary: 'Đăng nhập bằng Google' })

@@ -85,7 +85,7 @@ export default function Destinations() {
               <span style={{ color: "#d97706" }}>yêu thích nhất</span>
             </h2>
           </div>
-          <button style={{ background: "#ffffff", border: "1px solid rgba(0,0,0,0.08)", color: "#475569", padding: "10px 24px", borderRadius: "12px", cursor: "pointer", fontSize: "13px", fontWeight: 600, fontFamily: "'Inter', sans-serif", transition: "all 0.2s", boxShadow: "0 4px 10px rgba(0,0,0,0.02)" }} onMouseEnter={e => {e.target.style.background="#f8fafc"; e.target.style.color="#0f172a";}} onMouseLeave={e => {e.target.style.background="#ffffff"; e.target.style.color="#475569";}}>Xem tất cả →</button>
+          <button onClick={() => router.push('/tours')} style={{ background: "#ffffff", border: "1px solid rgba(0,0,0,0.08)", color: "#475569", padding: "10px 24px", borderRadius: "12px", cursor: "pointer", fontSize: "13px", fontWeight: 600, fontFamily: "'Inter', sans-serif", transition: "all 0.2s", boxShadow: "0 4px 10px rgba(0,0,0,0.02)" }} onMouseEnter={e => {e.target.style.background="#f8fafc"; e.target.style.color="#0f172a";}} onMouseLeave={e => {e.target.style.background="#ffffff"; e.target.style.color="#475569";}}>Xem tất cả →</button>
         </div>
 
         {/* Region filter */}
@@ -95,7 +95,7 @@ export default function Destinations() {
           ))}
         </div>
 
-        <div className="dest-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "24px" }}>
+        <div className="dest-grid premium-scroll">
           {loading ? (
             Array(4).fill(0).map((_, i) => (
               <div key={i} style={{ height: "350px", background: "#f1f5f9", borderRadius: "24px", animation: "pulse 1.5s infinite" }} />
@@ -123,19 +123,19 @@ export default function Destinations() {
                     <Moon size={14} color="#d97706" /> {dest.durationNights || 0} đêm
                   </div>
                 </div>
-                <div style={{ padding: "20px" }}>
+                <div className="card-content" style={{ padding: "20px" }}>
                   <div style={{ fontSize: "12px", color: "#64748b", marginBottom: "6px", display: "flex", alignItems: "center", gap: "4px", fontWeight: 600 }}>
                     <MapPin size={12} color="#0d9488" /> {dest.location}
                   </div>
-                  <h3 style={{ fontSize: "18px", fontWeight: 800, marginBottom: "10px", color: "#0f172a", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{dest.name}</h3>
+                  <h3 className="card-title" style={{ fontSize: "18px", fontWeight: 800, marginBottom: "10px", color: "#0f172a", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{dest.name}</h3>
                   <StarRating rating={dest.rating || 5.0} />
                   <div style={{ fontSize: "12px", color: "#94a3b8", marginTop: "4px", marginBottom: "18px", fontWeight: 500 }}>{dest.reviewCount || 0} đánh giá</div>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: "16px", borderTop: "1px solid rgba(0,0,0,0.05)" }}>
+                  <div className="card-footer" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: "16px", borderTop: "1px solid rgba(0,0,0,0.05)" }}>
                     <div>
-                      <span style={{ fontSize: "18px", fontWeight: 800, color: "#0d9488" }}>₫{Number(dest.basePrice).toLocaleString('vi-VN')}</span>
+                      <span className="card-price" style={{ fontSize: "18px", fontWeight: 800, color: "#0d9488" }}>₫{Number(dest.basePrice).toLocaleString('vi-VN')}</span>
                       <span style={{ fontSize: "11px", color: "#94a3b8", fontWeight: 500 }}>/người</span>
                     </div>
-                    <button style={{ background: "rgba(13,148,136,0.1)", border: "1px solid rgba(13,148,136,0.2)", color: "#0d9488", padding: "8px 16px", borderRadius: "8px", cursor: "pointer", fontSize: "12px", fontWeight: 700, fontFamily: "'Inter', sans-serif", transition: "all 0.2s" }} onMouseEnter={e => { e.target.style.background = "#0d9488"; e.target.style.color = "#fff"; }} onMouseLeave={e => { e.target.style.background = "rgba(13,148,136,0.1)"; e.target.style.color = "#0d9488"; }}>Đặt ngay</button>
+                    <button className="card-btn" style={{ background: "rgba(13,148,136,0.1)", border: "1px solid rgba(13,148,136,0.2)", color: "#0d9488", padding: "8px 16px", borderRadius: "8px", cursor: "pointer", fontSize: "12px", fontWeight: 700, fontFamily: "'Inter', sans-serif", transition: "all 0.2s" }} onMouseEnter={e => { e.target.style.background = "#0d9488"; e.target.style.color = "#fff"; }} onMouseLeave={e => { e.target.style.background = "rgba(13,148,136,0.1)"; e.target.style.color = "#0d9488"; }}>Đặt</button>
                   </div>
                 </div>
               </div>

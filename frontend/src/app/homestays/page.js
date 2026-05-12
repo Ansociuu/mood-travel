@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import HotelCard from "@/components/HotelCard";
@@ -17,6 +17,7 @@ const MapComponent = dynamic(() => import('@/components/MapComponent'), {
 
 export default function HomestaysPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [wishlist, setWishlist] = useState({});
   const [searchQuery, setSearchQuery] = useState("");
   const [guests, setGuests] = useState(0);
@@ -33,6 +34,26 @@ export default function HomestaysPage() {
     }
   ]);
   const [hasSelectedDate, setHasSelectedDate] = useState(false);
+
+  useEffect(() => {
+    const search = searchParams.get("search");
+    const guestsParam = searchParams.get("guests");
+    const date = searchParams.get("date");
+    const end = searchParams.get("endDate");
+
+    if (search) setSearchQuery(search);
+    if (guestsParam) setGuests(parseInt(guestsParam));
+    if (date) {
+      const d = new Date(date);
+      const e = end ? new Date(end) : new Date(new Date(d).setDate(d.getDate() + 1));
+      setDateRange([{
+        startDate: d,
+        endDate: e,
+        key: 'selection'
+      }]);
+      setHasSelectedDate(true);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     const fetchHomestays = async () => {

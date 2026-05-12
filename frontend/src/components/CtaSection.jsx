@@ -1,10 +1,12 @@
 "use client";
 import { useState } from "react";
-import { PlaneTakeoff, Mail, Gift, CheckCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { PlaneTakeoff, Mail, Gift, Map, Home } from "lucide-react";
 
 export default function CtaSection() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
-  const [emailSent, setEmailSent] = useState(false);
+  const [error, setError] = useState("");
 
   const glassCard = {
     background: "#ffffff",
@@ -12,8 +14,27 @@ export default function CtaSection() {
     borderRadius: "24px",
   };
 
-  const scrollTo = (id) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+  const validateEmail = (email) => {
+    return String(email)
+      .toLowerCase()
+      .match(
+        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+      );
+  };
+
+  const handleRegisterRedirect = () => {
+    setError("");
+    if (!email) {
+      setError("Vui lòng nhập email của bạn");
+      return;
+    }
+    if (!validateEmail(email)) {
+      setError("Email không hợp lệ");
+      return;
+    }
+
+    // Redirect to register page with email as query param
+    router.push(`/register?email=${encodeURIComponent(email)}`);
   };
 
   return (
@@ -32,33 +53,39 @@ export default function CtaSection() {
           <span style={{ color: "#d97706" }}>chuyến đi tiếp theo?</span>
         </h2>
         <p style={{ color: "#475569", fontSize: "16px", marginBottom: "36px", lineHeight: 1.7, fontWeight: 500 }}>
-          Đăng ký ngay hôm nay và nhận ngay voucher <strong style={{ color: "#0d9488" }}>200.000₫</strong> cho chuyến đầu tiên.
+          Đăng ký tài khoản ngay hôm nay và nhận ngay voucher <strong style={{ color: "#0d9488" }}>200.000₫</strong> cho chuyến đầu tiên.
         </p>
 
-        {/* Newsletter input */}
-        {!emailSent ? (
-          <div style={{ display: "flex", gap: "8px", maxWidth: "480px", margin: "0 auto 32px", position: "relative" }}>
-            <div style={{ flex: 1, background: "#f8fafc", border: "1px solid rgba(0,0,0,0.05)", borderRadius: "14px", padding: "14px 18px", display: "flex", alignItems: "center", gap: "10px", boxShadow: "inset 0 2px 4px rgba(0,0,0,0.02)" }}>
-              <Mail size={18} color="#94a3b8" />
-              <input placeholder="Nhập email của bạn..." value={email} onChange={e => setEmail(e.target.value)} style={{ fontSize: "15px", color: "#0f172a", fontWeight: 500 }} onKeyDown={e => e.key === "Enter" && email && setEmailSent(true)} />
+        {/* Newsletter-style Register input */}
+        <div style={{ maxWidth: "480px", margin: "0 auto 32px" }}>
+          <div style={{ display: "flex", gap: "8px", position: "relative" }}>
+            <div style={{ flex: 1, background: "#f8fafc", border: error ? "1px solid #ef4444" : "1px solid rgba(0,0,0,0.05)", borderRadius: "14px", padding: "14px 18px", display: "flex", alignItems: "center", gap: "10px", boxShadow: "inset 0 2px 4px rgba(0,0,0,0.02)", transition: "all 0.2s" }}>
+              <Mail size={18} color={error ? "#ef4444" : "#94a3b8"} />
+              <input 
+                placeholder="Nhập email của bạn..." 
+                value={email} 
+                onChange={e => { setEmail(e.target.value); setError(""); }} 
+                style={{ fontSize: "15px", color: "#0f172a", fontWeight: 500, width: "100%", background: "transparent", border: "none", outline: "none" }} 
+                onKeyDown={e => e.key === "Enter" && handleRegisterRedirect()} 
+              />
             </div>
-            <button onClick={() => email && setEmailSent(true)} className="shimmer-btn" style={{ color: "#fff", padding: "14px 24px", borderRadius: "14px", cursor: "pointer", fontSize: "15px", fontWeight: 700, border: "none", whiteSpace: "nowrap", boxShadow: "0 4px 20px rgba(13,148,136,0.3)", display: "flex", alignItems: "center", gap: "8px" }}>
-              <Gift size={16} /> Nhận ưu đãi
+            <button 
+              onClick={handleRegisterRedirect} 
+              className="shimmer-btn" 
+              style={{ color: "#fff", padding: "14px 24px", borderRadius: "14px", cursor: "pointer", fontSize: "15px", fontWeight: 700, border: "none", whiteSpace: "nowrap", boxShadow: "0 4px 20px rgba(13,148,136,0.3)", display: "flex", alignItems: "center", gap: "8px" }}
+            >
+              <Gift size={16} /> Đăng ký ngay
             </button>
           </div>
-        ) : (
-          <div style={{ maxWidth: "480px", margin: "0 auto 32px", background: "rgba(16,185,129,0.05)", border: "1px solid rgba(16,185,129,0.2)", borderRadius: "14px", padding: "16px", display: "flex", alignItems: "center", gap: "16px", animation: "popIn 0.4s ease", justifyContent: "center" }}>
-            <CheckCircle size={28} color="#059669" />
-            <div style={{ textAlign: "left" }}>
-              <div style={{ fontSize: "15px", fontWeight: 800, color: "#059669" }}>Đăng ký thành công!</div>
-              <div style={{ fontSize: "13px", color: "#475569", fontWeight: 500 }}>Voucher đã được gửi đến {email}</div>
-            </div>
-          </div>
-        )}
+          {error && <div style={{ color: "#ef4444", fontSize: "13px", fontWeight: 600, marginTop: "8px", textAlign: "left", paddingLeft: "18px" }}>{error}</div>}
+        </div>
 
-        <div style={{ display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap" }}>
-          <button style={{ background: "#f8fafc", border: "1px solid rgba(0,0,0,0.05)", color: "#0f172a", padding: "14px 36px", borderRadius: "14px", cursor: "pointer", fontSize: "15px", fontFamily: "'Inter', sans-serif", fontWeight: 700, transition: "all 0.2s" }} onClick={() => scrollTo("tours")} onMouseEnter={e => { e.target.style.background = "#f1f5f9"; e.target.style.borderColor = "rgba(0,0,0,0.1)"; }} onMouseLeave={e => { e.target.style.background = "#f8fafc"; e.target.style.borderColor = "rgba(0,0,0,0.05)"; }}>
-            Xem tất cả tour →
+        <div style={{ display: "flex", gap: "16px", justifyContent: "center", flexWrap: "wrap" }}>
+          <button style={{ background: "#0f172a", color: "#fff", border: "none", padding: "14px 28px", borderRadius: "14px", cursor: "pointer", fontSize: "15px", fontFamily: "'Inter', sans-serif", fontWeight: 700, transition: "all 0.2s", display: "flex", alignItems: "center", gap: "8px", boxShadow: "0 10px 20px rgba(15,23,42,0.15)" }} onClick={() => router.push("/tours")} onMouseEnter={e => { e.target.style.transform = "translateY(-2px)"; }} onMouseLeave={e => { e.target.style.transform = "translateY(0)"; }}>
+            <Map size={18} /> Xem tất cả tour
+          </button>
+          <button style={{ background: "#ffffff", border: "1px solid rgba(0,0,0,0.1)", color: "#0f172a", padding: "14px 28px", borderRadius: "14px", cursor: "pointer", fontSize: "15px", fontFamily: "'Inter', sans-serif", fontWeight: 700, transition: "all 0.2s", display: "flex", alignItems: "center", gap: "8px", boxShadow: "0 10px 20px rgba(0,0,0,0.03)" }} onClick={() => router.push("/homestays")} onMouseEnter={e => { e.target.style.background = "#f8fafc"; e.target.style.transform = "translateY(-2px)"; }} onMouseLeave={e => { e.target.style.background = "#ffffff"; e.target.style.transform = "translateY(0)"; }}>
+            <Home size={18} /> Khám phá Homestay
           </button>
         </div>
       </div>

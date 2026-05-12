@@ -63,6 +63,7 @@ export default function Navbar({ theme = "default" }) {
         <Link href="/homestays" className={`${(scrolled || isLightTheme) ? "nav-link" : "nav-link-light"} ${pathname.startsWith("/homestays") ? "active" : ""}`} style={{textDecoration: "none"}}>Homestay</Link>
         <Link href="/blog" className={`${(scrolled || isLightTheme) ? "nav-link" : "nav-link-light"} ${pathname.startsWith("/blog") ? "active" : ""}`} style={{textDecoration: "none"}}>Blog</Link>
         <Link href="/contact" className={`${(scrolled || isLightTheme) ? "nav-link" : "nav-link-light"} ${pathname.startsWith("/contact") ? "active" : ""}`} style={{textDecoration: "none"}}>Liên hệ</Link>
+        <Link href="/become-a-host" className={`${(scrolled || isLightTheme) ? "nav-link" : "nav-link-light"} ${pathname === "/become-a-host" ? "active" : ""}`} style={{textDecoration: "none", color: "#d97706", fontWeight: 700}}>Trở thành đối tác</Link>
       </div>
 
       <div className="nav-auth" style={{ display: "flex", gap: "12px", alignItems: "center" }}>
@@ -102,7 +103,8 @@ export default function Navbar({ theme = "default" }) {
         <div className="mobile-menu" style={{ position: "absolute", top: "72px", left: 0, right: 0, background: "rgba(255,255,255,0.98)", backdropFilter: "blur(24px)", borderBottom: "1px solid rgba(0,0,0,0.05)", padding: "20px 40px 24px", display: "flex", flexDirection: "column", gap: "4px", zIndex: 200, boxShadow: "0 10px 40px rgba(0,0,0,0.05)" }}>
           <Link href="/" className="nav-link" style={{ textAlign: "left", padding: "10px 0", fontSize: "16px", borderBottom: "1px solid rgba(0,0,0,0.05)", color: "#0f172a", textDecoration: "none" }} onClick={() => setMobileMenu(false)}>Khám phá</Link>
           <Link href="/tours" className="nav-link" style={{ textAlign: "left", padding: "10px 0", fontSize: "16px", borderBottom: "1px solid rgba(0,0,0,0.05)", color: "#0f172a", textDecoration: "none" }} onClick={() => setMobileMenu(false)}>Tour</Link>
-          <Link href="/homestays" className="nav-link" style={{ textAlign: "left", padding: "10px 0", fontSize: "16px", borderBottom: "1px solid rgba(0,0,0,0.05)", color: "#0f172a", textDecoration: "none" }} onClick={() => setMobileMenu(false)}>Homestay</Link>
+          <Link href="/contact" className="nav-link" style={{ textAlign: "left", padding: "10px 0", fontSize: "16px", borderBottom: "1px solid rgba(0,0,0,0.05)", color: "#0f172a", textDecoration: "none" }} onClick={() => setMobileMenu(false)}>Liên hệ</Link>
+          <Link href="/become-a-host" className="nav-link" style={{ textAlign: "left", padding: "10px 0", fontSize: "16px", borderBottom: "1px solid rgba(0,0,0,0.05)", color: "#d97706", textDecoration: "none", fontWeight: 700 }} onClick={() => setMobileMenu(false)}>Trở thành đối tác</Link>
           <div style={{ display: "flex", gap: "12px", marginTop: "16px" }}>
             <Link href="/login" style={{ textDecoration: "none", textAlign: "center", flex: 1, background: "transparent", border: "1px solid rgba(0,0,0,0.1)", color: "#0f172a", padding: "10px", borderRadius: "10px", cursor: "pointer", fontSize: "14px", fontWeight: 600, fontFamily: "'Inter', sans-serif" }}>Đăng nhập</Link>
             <Link href="/register" className="shimmer-btn" style={{ textDecoration: "none", textAlign: "center", flex: 1, padding: "10px", borderRadius: "10px", cursor: "pointer", fontSize: "14px", fontWeight: 600, border: "none" }}>Đăng ký</Link>

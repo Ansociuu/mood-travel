@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import TourCard from "@/components/TourCard";
@@ -11,6 +11,7 @@ import { Search, Filter, SlidersHorizontal, ArrowDownAZ, MapPin, Calendar, Users
 
 export default function ToursPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [tours, setTours] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -27,6 +28,19 @@ export default function ToursPage() {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [hasSelectedDate, setHasSelectedDate] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
+
+  useEffect(() => {
+    const search = searchParams.get("search");
+    const duration = searchParams.get("duration");
+    const date = searchParams.get("date");
+
+    if (search) setSearchQuery(search);
+    if (duration) setDurationFilters([duration]);
+    if (date) {
+      setSelectedDate(new Date(date));
+      setHasSelectedDate(true);
+    }
+  }, [searchParams]);
 
   const filteredLocations = Array.from(new Set(tours.map(t => t.location))).filter(loc => loc.toLowerCase().includes(searchQuery.toLowerCase()) && searchQuery);
   const filteredTourNames = tours.filter(t => t.name.toLowerCase().includes(searchQuery.toLowerCase()) && searchQuery);

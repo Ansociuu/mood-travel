@@ -16,7 +16,6 @@ export default function Homestays() {
     const fetchHotels = async () => {
       try {
         const data = await hotelsApi.getAll();
-        // Format like in HomestaysPage
         const formatted = data.map(h => {
           const prices = h.rooms?.map(r => Number(r.basePrice)).filter(p => p > 0) || [];
           const minPrice = prices.length > 0 ? Math.min(...prices) : 0;
@@ -33,7 +32,7 @@ export default function Homestays() {
             per: "đêm"
           };
         });
-        setHomestays(formatted.slice(0, 3)); // Only show top 3 on home
+        setHomestays(formatted.slice(0, 4)); // Show 4 items on home
       } catch (err) {
         console.error(err);
       } finally {
@@ -41,7 +40,9 @@ export default function Homestays() {
       }
     };
     fetchHotels();
+  }, []);
 
+  useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => entries.forEach(e => {
         if (e.isIntersecting) setVisibleCards(p => ({ ...p, [e.target.dataset.id]: true }));
@@ -63,16 +64,19 @@ export default function Homestays() {
   return (
     <section id="homestay" className="section-pad" style={{ position: "relative", zIndex: 1, padding: "0 40px 80px" }}>
       <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
-        <div style={{ marginBottom: "40px" }}>
-          <div style={{ fontSize: "12px", color: "#0d9488", fontWeight: 800, letterSpacing: "2px", textTransform: "uppercase", marginBottom: "12px" }}>✦ HOMESTAY CHỌN LỌC</div>
-          <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: "40px", fontWeight: 800, lineHeight: 1.1, letterSpacing: "-1px", color: "#0f172a" }}>
-            Căn nhà thứ hai<br />
-            <span style={{ color: "#d97706" }}>của bạn</span>
-          </h2>
+        <div style={{ marginBottom: "40px", display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+          <div>
+            <div style={{ fontSize: "12px", color: "#0d9488", fontWeight: 800, letterSpacing: "2px", textTransform: "uppercase", marginBottom: "12px" }}>✦ HOMESTAY CHỌN LỌC</div>
+            <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: "40px", fontWeight: 800, lineHeight: 1.1, letterSpacing: "-1px", color: "#0f172a" }}>
+              Căn nhà thứ hai<br />
+              <span style={{ color: "#d97706" }}>của bạn</span>
+            </h2>
+          </div>
+          <button onClick={() => router.push('/homestays')} style={{ background: "#ffffff", border: "1px solid rgba(0,0,0,0.08)", color: "#475569", padding: "10px 24px", borderRadius: "12px", cursor: "pointer", fontSize: "13px", fontWeight: 600, fontFamily: "'Inter', sans-serif", transition: "all 0.2s", boxShadow: "0 4px 10px rgba(0,0,0,0.02)" }} onMouseEnter={e => {e.target.style.background="#f8fafc"; e.target.style.color="#0f172a";}} onMouseLeave={e => {e.target.style.background="#ffffff"; e.target.style.color="#475569";}}>Xem tất cả →</button>
         </div>
-        <div className="home-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "24px" }}>
+        <div className="home-grid premium-scroll">
           {loading ? (
-            Array(3).fill(0).map((_, i) => (
+            Array(4).fill(0).map((_, i) => (
               <div key={i} style={{ height: "400px", background: "#f1f5f9", borderRadius: "24px", animation: "pulse 1.5s infinite" }} />
             ))
           ) : homestays.map((h, i) => (
@@ -87,26 +91,21 @@ export default function Homestays() {
                   <Heart size={16} fill={wishlist[`h${h.id}`] ? "#ef4444" : "transparent"} color={wishlist[`h${h.id}`] ? "#ef4444" : "#64748b"} />
                 </button>
               </div>
-              <div style={{ padding: "24px" }}>
+              <div className="card-content" style={{ padding: "24px" }}>
                 <div style={{ fontSize: "12px", color: "#64748b", marginBottom: "6px", display: "flex", alignItems: "center", gap: "4px", fontWeight: 600 }}>
                   <MapPin size={12} color="#0d9488" /> {h.location}
                 </div>
-                <h3 style={{ fontSize: "20px", fontWeight: 800, marginBottom: "16px", color: "#0f172a" }}>{h.name}</h3>
-                <div style={{ display: "flex", gap: "16px", marginBottom: "20px" }}>
-                  {[
-                    [<Bed size={14} color="#64748b" />, h.beds + " phòng ngủ"], 
-                    [<Bath size={14} color="#64748b" />, h.baths + " WC"], 
-                    [<Users size={14} color="#64748b" />, h.guests + " khách"]
-                  ].map(([icon, text], j) => (
-                    <span key={j} style={{ fontSize: "13px", color: "#475569", display: "flex", alignItems: "center", gap: "6px", fontWeight: 500 }}>{icon} {text}</span>
-                  ))}
+                <h3 className="card-title" style={{ fontSize: "20px", fontWeight: 800, marginBottom: "16px", color: "#0f172a", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{h.name}</h3>
+                <div className="card-meta" style={{ display: "flex", gap: "16px", marginBottom: "20px" }}>
+                  <span style={{ fontSize: "13px", color: "#475569", display: "flex", alignItems: "center", gap: "6px", fontWeight: 500 }}><Bed size={14} color="#64748b" /> {h.beds} ngủ</span>
+                  <span style={{ fontSize: "13px", color: "#475569", display: "flex", alignItems: "center", gap: "6px", fontWeight: 500 }}><Users size={14} color="#64748b" /> {h.guests} khách</span>
                 </div>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: "20px", borderTop: "1px solid rgba(0,0,0,0.05)" }}>
+                <div className="card-footer" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: "20px", borderTop: "1px solid rgba(0,0,0,0.05)" }}>
                   <div>
-                    <span style={{ fontSize: "22px", fontWeight: 800, color: "#d97706" }}>₫{h.price}</span>
+                    <span className="card-price" style={{ fontSize: "22px", fontWeight: 800, color: "#d97706" }}>₫{h.price}</span>
                     <span style={{ fontSize: "13px", color: "#94a3b8", fontWeight: 500 }}>/{h.per}</span>
                   </div>
-                  <button style={{ background: "rgba(217,119,6,0.1)", border: "1px solid rgba(217,119,6,0.2)", color: "#d97706", padding: "8px 20px", borderRadius: "10px", cursor: "pointer", fontSize: "13px", fontWeight: 700, fontFamily: "'Inter', sans-serif", transition: "all 0.2s" }} onMouseEnter={e => { e.target.style.background = "#d97706"; e.target.style.color = "#fff"; }} onMouseLeave={e => { e.target.style.background = "rgba(217,119,6,0.1)"; e.target.style.color = "#d97706"; }}>Chi tiết</button>
+                  <button className="card-btn" style={{ background: "rgba(217,119,6,0.1)", border: "1px solid rgba(217,119,6,0.2)", color: "#d97706", padding: "8px 20px", borderRadius: "10px", cursor: "pointer", fontSize: "13px", fontWeight: 700, fontFamily: "'Inter', sans-serif", transition: "all 0.2s" }} onMouseEnter={e => { e.target.style.background = "#d97706"; e.target.style.color = "#fff"; }} onMouseLeave={e => { e.target.style.background = "rgba(217,119,6,0.1)"; e.target.style.color = "#d97706"; }}>Xem</button>
                 </div>
               </div>
             </div>

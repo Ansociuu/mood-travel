@@ -22,13 +22,7 @@ export default function MoodSelector({ onMoodSelect, selectedMood }) {
           Hôm nay bạn cảm thấy thế nào?
         </h2>
 
-        <div style={{
-          display: "flex",
-          gap: "12px",
-          justifyContent: "center",
-          flexWrap: "wrap",
-          marginTop: "32px"
-        }}>
+        <div className="mood-grid premium-mood-scroll">
           {moods.map((mood) => {
             const Icon = mood.icon;
             const isActive = selectedMood === mood.id;

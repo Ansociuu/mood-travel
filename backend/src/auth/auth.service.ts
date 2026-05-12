@@ -1,4 +1,5 @@
 import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
+import { Role } from '@prisma/client';
 import { UsersService } from '../users/users.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
@@ -24,7 +25,10 @@ export class AuthService {
       throw new ConflictException('Email đã tồn tại');
     }
 
-    const user = await this.usersService.create(dto);
+    const user = await this.usersService.create({
+      ...dto,
+      role: dto.role as Role
+    });
 
     // Generate 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
@@ -251,7 +255,6 @@ export class AuthService {
       },
     };
   }
-
   async getMe(userId: string) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
@@ -259,5 +262,22 @@ export class AuthService {
     if (!user) return null;
     const { password: _, ...result } = user;
     return result;
+  }
+
+  async refreshToken(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+    if (!user) {
+      throw new UnauthorizedException('Người dùng không tồn tại');
+    }
+
+    const payload = { email: user.email, sub: user.id, role: user.role };
+    const { password: _, ...userWithoutPassword } = user;
+
+    return {
+      access_token: this.jwtService.sign(payload),
+      user: userWithoutPassword,
+    };
   }
 }

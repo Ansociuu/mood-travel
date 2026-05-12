@@ -1,9 +1,10 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Mail, Lock, Eye, EyeOff, User, Loader2, CheckCircle2 } from "lucide-react";
 import { authApi } from "@/lib/api";
+import { useEffect } from "react";
 import LegalModal from "@/components/LegalModal";
 
 export default function RegisterPage() {
@@ -16,6 +17,7 @@ export default function RegisterPage() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
   const [otp, setOtp] = useState("");
+  const [role, setRole] = useState("USER"); // Default role
   const [termsAccepted, setTermsAccepted] = useState(false);
   
   // Modal states
@@ -23,6 +25,18 @@ export default function RegisterPage() {
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
   
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const emailParam = searchParams.get("email");
+    if (emailParam) {
+      setEmail(emailParam);
+    }
+    const roleParam = searchParams.get("role");
+    if (roleParam) {
+      setRole(roleParam.toUpperCase());
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -31,7 +45,7 @@ export default function RegisterPage() {
     setError("");
 
     try {
-      await authApi.register({ name, email, password });
+      await authApi.register({ name, email, password, role });
       setIsSuccess(true);
     } catch (err) {
       setError(err.message || "Đăng ký thất bại. Vui lòng kiểm tra lại thông tin.");
@@ -150,6 +164,34 @@ export default function RegisterPage() {
         <p style={{ color: "#64748b", fontSize: "15px", fontWeight: 500 }}>
           Tạo tài khoản ngay hôm nay để nhận voucher giảm 200.000₫ cho chuyến đi đầu tiên.
         </p>
+      </div>
+
+      {/* Role Selection */}
+      <div style={{ display: "flex", background: "#f1f5f9", padding: "4px", borderRadius: "14px", marginBottom: "24px" }}>
+        <button 
+          onClick={() => setRole("USER")}
+          style={{ 
+            flex: 1, padding: "10px", borderRadius: "10px", border: "none", fontSize: "14px", fontWeight: 700, cursor: "pointer",
+            background: role === "USER" ? "#fff" : "transparent",
+            color: role === "USER" ? "#0d9488" : "#64748b",
+            boxShadow: role === "USER" ? "0 2px 8px rgba(0,0,0,0.05)" : "none",
+            transition: "all 0.2s"
+          }}
+        >
+          Tôi đi du lịch
+        </button>
+        <button 
+          onClick={() => setRole("OWNER")}
+          style={{ 
+            flex: 1, padding: "10px", borderRadius: "10px", border: "none", fontSize: "14px", fontWeight: 700, cursor: "pointer",
+            background: role === "OWNER" ? "#fff" : "transparent",
+            color: role === "OWNER" ? "#0d9488" : "#64748b",
+            boxShadow: role === "OWNER" ? "0 2px 8px rgba(0,0,0,0.05)" : "none",
+            transition: "all 0.2s"
+          }}
+        >
+          Tôi muốn kinh doanh
+        </button>
       </div>
 
       <form style={{ display: "flex", flexDirection: "column", gap: "20px", marginBottom: "24px" }} onSubmit={handleSubmit}>

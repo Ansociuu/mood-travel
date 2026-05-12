@@ -1,38 +1,49 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { Role, BookingStatus } from '@prisma/client';
 
 @Injectable()
 export class AdminService {
   constructor(private prisma: PrismaService) {}
 
   async getStats(user: { id: string, role: string }) {
-    const isOwner = user.role === 'OWNER';
+    const isAdmin = user.role === Role.ADMIN;
+    const isOwner = user.role === Role.OWNER;
     const ownerId = isOwner ? user.id : undefined;
+
+    // Security Gate: If somehow a USER reaches here (RolesGuard should prevent it)
+    if (!isAdmin && !isOwner) {
+      return {
+        revenue: 0,
+        bookings: 0,
+        products: 0,
+        rating: "0.0",
+        recentBookings: [],
+        revenueGrowth: 0,
+        bookingsGrowth: 0
+      };
+    }
+
+    const baseWhere: any = {
+      status: { in: [BookingStatus.CONFIRMED, BookingStatus.COMPLETED] }
+    };
+
+    if (isOwner) {
+      baseWhere.OR = [
+        { hotel: { ownerId: ownerId } },
+        { tour: { ownerId: ownerId } }
+      ];
+    }
 
     // 1. Calculate Revenue
     const revenueStats = await this.prisma.booking.aggregate({
-      where: {
-        status: { in: ['CONFIRMED', 'COMPLETED'] },
-        ...(isOwner && {
-          OR: [
-            { hotel: { ownerId: ownerId } },
-            { tour: { ownerId: ownerId } }
-          ]
-        })
-      },
+      where: baseWhere,
       _sum: { totalAmount: true }
     });
 
     // 2. Count Bookings
     const bookingsCount = await this.prisma.booking.count({
-      where: {
-        ...(isOwner && {
-          OR: [
-            { hotel: { ownerId: ownerId } },
-            { tour: { ownerId: ownerId } }
-          ]
-        })
-      }
+      where: baseWhere
     });
 
     // 3. Count Active Products

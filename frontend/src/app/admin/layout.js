@@ -56,34 +56,13 @@ export default function AdminLayout({ children }) {
       )}
 
       {/* Sidebar Wrapper */}
-      <div style={{ 
-        position: "fixed", 
-        left: mobileMenuOpen ? 0 : (typeof window !== 'undefined' && window.innerWidth < 1024 ? "-280px" : 0), 
-        top: 0, bottom: 0, zIndex: 100, 
-        transition: "all 0.3s ease",
-      }}>
+      <div className={`sidebar-wrapper ${mobileMenuOpen ? 'mobile-open' : ''} ${sidebarCollapsed ? 'collapsed' : ''}`}>
         <AdminSidebar user={user} collapsed={sidebarCollapsed} setCollapsed={setSidebarCollapsed} />
       </div>
       
-      <div style={{ 
-        flex: 1, 
-        marginLeft: (typeof window !== 'undefined' && window.innerWidth < 1024) ? 0 : (sidebarCollapsed ? "80px" : "280px"), 
-        transition: "margin 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-        minWidth: 0
-      }}>
+      <div className={`content-wrapper ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
         {/* TOP BAR */}
-        <header style={{ 
-          height: "72px", 
-          background: "#fff", 
-          borderBottom: "1px solid rgba(0,0,0,0.05)", 
-          display: "flex", 
-          alignItems: "center", 
-          justifyContent: "space-between", 
-          padding: "0 40px",
-          position: "sticky",
-          top: 0,
-          zIndex: 90
-        }}>
+        <header className="top-header">
           <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
             <button 
               onClick={() => {
@@ -108,7 +87,7 @@ export default function AdminLayout({ children }) {
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: "24px" }}>
-            <div style={{ position: "relative" }}>
+            <div style={{ position: "relative" }} className="top-notifications">
               <button 
                 onClick={() => setShowNotifications(!showNotifications)}
                 style={{ position: "relative", background: "none", border: "none", color: "#64748b", cursor: "pointer" }}
@@ -137,9 +116,9 @@ export default function AdminLayout({ children }) {
                 </div>
               )}
             </div>
-            <div style={{ width: "1px", height: "32px", background: "#e2e8f0" }} />
+            <div style={{ width: "1px", height: "32px", background: "#e2e8f0" }} className="divider" />
             <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-              <div style={{ textAlign: "right" }}>
+              <div style={{ textAlign: "right" }} className="user-info-text">
                 <div style={{ fontSize: "14px", fontWeight: 700, color: "#0f172a" }}>{user.name}</div>
                 <div style={{ fontSize: "12px", color: "#0d9488", fontWeight: 700 }}>{user.role}</div>
               </div>
@@ -149,14 +128,70 @@ export default function AdminLayout({ children }) {
         </header>
 
         {/* PAGE CONTENT */}
-        <main style={{ padding: "40px" }}>
+        <main className="admin-main">
           {children}
         </main>
       </div>
       
       <style>{`
+        .sidebar-wrapper {
+          position: fixed;
+          top: 0; bottom: 0;
+          z-index: 100;
+          transition: all 0.3s ease;
+          width: 280px;
+          left: 0;
+        }
+        .sidebar-wrapper.collapsed { width: 80px; }
+        
+        .content-wrapper {
+          flex: 1;
+          margin-left: 280px;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          min-width: 0;
+        }
+        .content-wrapper.sidebar-collapsed { margin-left: 80px; }
+        
+        .top-header {
+          height: 72px;
+          background: #fff;
+          border-bottom: 1px solid rgba(0,0,0,0.05);
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 0 40px;
+          position: sticky;
+          top: 0;
+          zIndex: 90;
+        }
+        
+        .admin-main { padding: 40px; }
+
+        @media (max-width: 1200px) {
+          .sidebar-wrapper { width: 80px; }
+          .content-wrapper { margin-left: 80px; }
+          /* Note: We need to tell the sidebar component it's collapsed via props, 
+             which is already handled by sidebarCollapsed state in most cases, 
+             but here we force the container width */
+        }
+
         @media (max-width: 1024px) {
+          .top-search { width: 200px !important; }
+          .top-header { padding: 0 20px; }
+          .admin-main { padding: 24px 20px; }
+        }
+
+        @media (max-width: 768px) {
+          .sidebar-wrapper { left: -280px; width: 280px !important; }
+          .sidebar-wrapper.mobile-open { left: 0; }
+          .content-wrapper { margin-left: 0 !important; }
           .top-search { display: none !important; }
+        }
+        
+        @media (max-width: 640px) {
+          .user-info-text { display: none; }
+          .divider { display: none; }
+          .top-notifications { margin-right: 8px; }
         }
       `}</style>
     </div>
